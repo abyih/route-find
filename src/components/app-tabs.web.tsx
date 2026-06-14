@@ -1,3 +1,10 @@
+/**
+ * App Tabs — Bottom tab navigation (Web)
+ *
+ * 4 tabs: Home, Map, Routes, Saved
+ * Simplified for web using expo-router/ui Tabs.
+ */
+
 import {
   Tabs,
   TabList,
@@ -6,10 +13,9 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
 import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
@@ -21,11 +27,17 @@ export default function AppTabs() {
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+          <TabTrigger name="index" href="/" asChild>
+            <TabButton icon="navigate">Home</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
+          <TabTrigger name="map" href="/map" asChild>
+            <TabButton icon="map">Map</TabButton>
+          </TabTrigger>
+          <TabTrigger name="routes" href="/routes" asChild>
+            <TabButton icon="git-branch">Routes</TabButton>
+          </TabTrigger>
+          <TabTrigger name="saved" href="/saved" asChild>
+            <TabButton icon="bookmark">Saved</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -33,12 +45,25 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+export function TabButton({
+  children,
+  isFocused,
+  icon,
+  ...props
+}: TabTriggerSlotProps & { icon: keyof typeof Ionicons.glyphMap }) {
+  const scheme = useColorScheme();
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
+
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <ThemedView
         type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
         style={styles.tabButtonView}>
+        <Ionicons
+          name={icon}
+          size={16}
+          color={isFocused ? colors.primary : colors.textSecondary}
+        />
         <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
           {children}
         </ThemedText>
@@ -48,28 +73,13 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
-
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
+          Route Finder
         </ThemedText>
-
         {props.children}
-
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
       </ThemedView>
     </View>
   );
@@ -101,15 +111,11 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   tabButtonView: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: Spacing.one,
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.three,
-  },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
+    gap: 6,
   },
 });
