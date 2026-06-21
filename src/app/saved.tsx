@@ -150,9 +150,13 @@ export default function SavedScreen() {
         <Dialog visible={deleteTarget !== null} onDismiss={() => setDeleteTarget(null)}>
           <Dialog.Title>Remove Saved Route</Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">
-              Remove {deleteTarget?.fromStopName} → {deleteTarget?.toStopName} from saved?
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+              <Text variant="bodyMedium">Remove</Text>
+              <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{deleteTarget?.fromStopName}</Text>
+              <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
+              <Text variant="bodyMedium" style={{ fontWeight: '600' }}>{deleteTarget?.toStopName}</Text>
+              <Text variant="bodyMedium">from saved?</Text>
+            </View>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setDeleteTarget(null)}>Cancel</Button>

@@ -48,9 +48,11 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
           </View>
           <View style={{ flex: 1, gap: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text variant="titleSmall" numberOfLines={1} style={{ flex: 1, marginRight: 8 }}>
-                {firstStop.name} → {lastStop.name}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, marginRight: 8 }}>
+                <Text variant="titleSmall" style={{ fontWeight: '700' }}>{firstStop.name}</Text>
+                <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
+                <Text variant="titleSmall" style={{ fontWeight: '700' }}>{lastStop.name}</Text>
+              </View>
               {onSave && (
                 <IconButton
                   icon={isSaved ? 'bookmark' : 'bookmark-outline'}

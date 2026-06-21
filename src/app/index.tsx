@@ -21,11 +21,11 @@ import { useSavedRoutes } from '@/hooks/use-saved-routes';
 import { useAppTheme } from '@/hooks/use-theme';
 
 const POPULAR_ROUTES = [
-  { from: 'mexico', to: 'megenagna', label: 'Mexico → Megenagna' },
-  { from: 'bole', to: 'piassa', label: 'Bole → Piassa' },
-  { from: '4kilo', to: 'mexico', label: '4 Kilo → Mexico' },
-  { from: 'megenagna', to: 'kaliti', label: 'Megenagna → Kaliti' },
-  { from: 'torhayloch', to: 'ayat', label: 'Torhayloch → Ayat' },
+  { from: 'mexico', to: 'megenagna', fromName: 'Mexico', toName: 'Megenagna' },
+  { from: 'bole', to: 'piassa', fromName: 'Bole', toName: 'Piassa' },
+  { from: '4kilo', to: 'mexico', fromName: '4 Kilo', toName: 'Mexico' },
+  { from: 'megenagna', to: 'kaliti', fromName: 'Megenagna', toName: 'Kaliti' },
+  { from: 'torhayloch', to: 'ayat', fromName: 'Torhayloch', toName: 'Ayat' },
 ];
 
 export default function HomeScreen() {
@@ -198,12 +198,18 @@ export default function HomeScreen() {
           <View style={{ padding: 16, gap: 12 }}>
             <Text variant="titleMedium">Popular Routes</Text>
             {POPULAR_ROUTES.map((pr) => (
-              <Card key={pr.label} onPress={() => handlePopularRoute(pr.from, pr.to)}>
-                <Card.Title
-                  title={pr.label}
-                  left={(props) => <Icon {...props} source="trending-up" />}
-                  right={(props) => <Icon {...props} source="chevron-right" />}
-                />
+              <Card key={`${pr.from}-${pr.to}`} onPress={() => handlePopularRoute(pr.from, pr.to)}>
+                <Card.Content style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <Icon source="trending-up" size={20} color={theme.colors.primary} />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text variant="bodyLarge" style={{ fontWeight: '600' }}>{pr.fromName}</Text>
+                      <Icon source="arrow-right" size={16} color={theme.colors.onSurfaceVariant} />
+                      <Text variant="bodyLarge" style={{ fontWeight: '600' }}>{pr.toName}</Text>
+                    </View>
+                  </View>
+                  <Icon source="chevron-right" size={20} color={theme.colors.onSurfaceVariant} />
+                </Card.Content>
               </Card>
             ))}
           </View>
