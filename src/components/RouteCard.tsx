@@ -48,7 +48,7 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
               {onSave && (
                 <IconButton
                   icon={isSaved ? 'bookmark' : 'bookmark-outline'}
-                  size={18}
+                  size={24}
                   iconColor={isSaved ? theme.colors.accent : theme.colors.onSurfaceVariant}
                   onPress={() => onSave(route)}
                   style={{ margin: -8 }}

@@ -1,14 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform, ScrollView, StatusBar, View } from 'react-native';
 import {
   Button,
   Card,
-  Chip,
   Divider,
   Icon,
   IconButton,
-  Text,
+  Text
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,18 +25,34 @@ const POPULAR_ROUTES = [
   { from: 'bole', to: 'piassa', fromName: 'Bole', toName: 'Piassa' },
   { from: '4kilo', to: 'mexico', fromName: '4 Kilo', toName: 'Mexico' },
   { from: 'megenagna', to: 'kaliti', fromName: 'Megenagna', toName: 'Kaliti' },
-  { from: 'torhayloch', to: 'ayat', fromName: 'Torhayloch', toName: 'Ayat' },
+  { from: 'tor_hayloch', to: 'ayat', fromName: 'Torhayloch', toName: 'Ayat' },
 ];
 
 export default function HomeScreen() {
   const theme = useAppTheme();
   const { saveRoute, removeRoute, isRouteSaved } = useSavedRoutes();
+  const params = useLocalSearchParams<{ from?: string; to?: string }>();
 
   const [fromStop, setFromStop] = useState<Stop | null>(null);
   const [toStop, setToStop] = useState<Stop | null>(null);
   const [results, setResults] = useState<RouteResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    if (params.from && params.to) {
+      const f = getStopById(params.from);
+      const t = getStopById(params.to);
+      if (f && t) {
+        setFromStop(f);
+        setToStop(t);
+        setSearching(true);
+        setHasSearched(true);
+        setResults(findRoutes(f.id, t.id));
+        setSearching(false);
+      }
+    }
+  }, [params.from, params.to]);
 
   const handleSearch = useCallback(() => {
     if (!fromStop || !toStop) return;
