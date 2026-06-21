@@ -1,8 +1,8 @@
 /**
  * App Tabs — Bottom tab navigation (Web)
  *
- * 4 tabs: Home, Map, Routes, Saved
- * Simplified for web using expo-router/ui Tabs.
+ * 3 tabs: Home, Routes, Saved
+ * Simplified for web using expo-router/ui Tabs with Paper components.
  */
 
 import {
@@ -13,13 +13,11 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Pressable, View, StyleSheet } from 'react-native';
+import { Icon, Surface, Text } from 'react-native-paper';
 
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
+import { MaxContentWidth } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
@@ -28,11 +26,11 @@ export default function AppTabs() {
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="index" href="/" asChild>
-            <TabButton icon="navigate">Home</TabButton>
+            <TabButton icon="compass">Home</TabButton>
           </TabTrigger>
 
           <TabTrigger name="routes" href="/routes" asChild>
-            <TabButton icon="git-branch">Routes</TabButton>
+            <TabButton icon="source-branch">Routes</TabButton>
           </TabTrigger>
           <TabTrigger name="saved" href="/saved" asChild>
             <TabButton icon="bookmark">Saved</TabButton>
@@ -48,37 +46,51 @@ export function TabButton({
   isFocused,
   icon,
   ...props
-}: TabTriggerSlotProps & { icon: keyof typeof Ionicons.glyphMap }) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
+}: TabTriggerSlotProps & { icon: string }) {
+  const theme = useAppTheme();
 
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <Ionicons
-          name={icon}
+      <Surface
+        style={[
+          styles.tabButtonView,
+          {
+            backgroundColor: isFocused
+              ? theme.colors.primaryContainer
+              : theme.colors.surfaceVariant,
+          },
+        ]}
+        elevation={0}
+      >
+        <Icon
+          source={icon}
           size={16}
-          color={isFocused ? colors.primary : colors.textSecondary}
+          color={isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant}
         />
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+        <Text
+          variant="labelSmall"
+          style={{
+            color: isFocused ? theme.colors.onSurface : theme.colors.onSurfaceVariant,
+          }}
+        >
           {children}
-        </ThemedText>
-      </ThemedView>
+        </Text>
+      </Surface>
     </Pressable>
   );
 }
 
 export function CustomTabList(props: TabListProps) {
+  const theme = useAppTheme();
+
   return (
     <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
+      <Surface style={styles.innerContainer} elevation={1}>
+        <Text variant="labelLarge" style={[styles.brandText, { color: theme.colors.onSurface }]}>
           Route Finder
-        </ThemedText>
+        </Text>
         {props.children}
-      </ThemedView>
+      </Surface>
     </View>
   );
 }
@@ -87,19 +99,19 @@ const styles = StyleSheet.create({
   tabListContainer: {
     position: 'absolute',
     width: '100%',
-    padding: Spacing.three,
+    padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
   innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
-    borderRadius: Spacing.five,
+    paddingVertical: 8,
+    paddingHorizontal: 32,
+    borderRadius: 32,
     flexDirection: 'row',
     alignItems: 'center',
     flexGrow: 1,
-    gap: Spacing.two,
+    gap: 8,
     maxWidth: MaxContentWidth,
   },
   brandText: {
@@ -111,9 +123,9 @@ const styles = StyleSheet.create({
   tabButtonView: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     gap: 6,
   },
 });

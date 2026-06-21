@@ -1,28 +1,32 @@
 /**
  * Routes Screen — Browse all transit routes from each hub
  *
- * Lists all major hubs as expandable cards. Tap a hub to see
+ * Lists all major hubs as expandable accordions. Tap a hub to see
  * all departing routes with destinations and transport type.
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   Platform,
   StatusBar,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Text,
+  Searchbar,
+  Chip,
+  List,
+  Icon,
+  Divider,
+  Surface,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { STOPS, CONNECTIONS, getStopById, getConnectionsFrom } from '@/data/routeData';
+import { STOPS, CONNECTIONS, getStopById } from '@/data/routeData';
 import { RouteConnection } from '@/data/types';
-import { useTheme } from '@/hooks/use-theme';
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
 
 interface HubData {
   stopId: string;
@@ -32,7 +36,7 @@ interface HubData {
 }
 
 export default function RoutesScreen() {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const [search, setSearch] = useState('');
   const [expandedHub, setExpandedHub] = useState<string | null>(null);
 
@@ -76,59 +80,71 @@ export default function RoutesScreen() {
     );
   }, [hubs, search]);
 
-  const toggleHub = useCallback((hubId: string) => {
-    setExpandedHub(prev => prev === hubId ? null : hubId);
-  }, []);
+  const getHubIcon = (type: string) => {
+    if (type === 'bus') return 'bus';
+    if (type === 'taxi') return 'taxi';
+    return 'swap-horizontal';
+  };
+
+  const getHubColor = (type: string) => {
+    if (type === 'bus') return theme.colors.bus;
+    if (type === 'taxi') return theme.colors.taxi;
+    return theme.colors.primary;
+  };
+
+  const getHubBg = (type: string) => {
+    if (type === 'bus') return theme.colors.busLight;
+    if (type === 'taxi') return theme.colors.taxiLight;
+    return theme.colors.primaryLight;
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Routes</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+          <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Routes</Text>
+          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
             Browse all transit connections
           </Text>
         </View>
 
         {/* Search */}
-        <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Ionicons name="search" size={18} color={theme.textSecondary} />
-          <TextInput
-            style={[styles.searchInput, { color: theme.text }]}
-            placeholder="Search hubs or destinations..."
-            placeholderTextColor={theme.textSecondary}
-            value={search}
-            onChangeText={setSearch}
-          />
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch('')}>
-              <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
-            </TouchableOpacity>
-          )}
-        </View>
+        <Searchbar
+          placeholder="Search hubs or destinations..."
+          value={search}
+          onChangeText={setSearch}
+          style={[styles.searchBar, { backgroundColor: theme.colors.surfaceVariant }]}
+          elevation={0}
+        />
 
         {/* Stats */}
         <View style={styles.statsRow}>
-          <View style={[styles.statChip, { backgroundColor: theme.primaryLight }]}>
-            <Ionicons name="location" size={14} color={theme.primary} />
-            <Text style={[styles.statText, { color: theme.primary }]}>
-              {STOPS.length} stops
-            </Text>
-          </View>
-          <View style={[styles.statChip, { backgroundColor: theme.accentLight }]}>
-            <Ionicons name="git-branch" size={14} color={theme.accent} />
-            <Text style={[styles.statText, { color: theme.accent }]}>
-              {CONNECTIONS.length} routes
-            </Text>
-          </View>
-          <View style={[styles.statChip, { backgroundColor: theme.successLight }]}>
-            <Ionicons name="bus" size={14} color={theme.success} />
-            <Text style={[styles.statText, { color: theme.success }]}>
-              {filteredHubs.length} hubs
-            </Text>
-          </View>
+          <Chip
+            compact
+            mode="flat"
+            icon="map-marker"
+            style={{ backgroundColor: theme.colors.primaryContainer }}
+          >
+            {STOPS.length} stops
+          </Chip>
+          <Chip
+            compact
+            mode="flat"
+            icon="source-branch"
+            style={{ backgroundColor: theme.colors.secondaryContainer }}
+          >
+            {CONNECTIONS.length} routes
+          </Chip>
+          <Chip
+            compact
+            mode="flat"
+            icon="bus"
+            style={{ backgroundColor: theme.colors.tertiaryContainer }}
+          >
+            {filteredHubs.length} hubs
+          </Chip>
         </View>
       </SafeAreaView>
 
@@ -140,89 +156,74 @@ export default function RoutesScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {filteredHubs.map(hub => (
-          <View key={hub.stopId}>
-            {/* Hub Header */}
-            <TouchableOpacity
-              style={[styles.hubCard, {
-                backgroundColor: theme.card,
-                borderColor: expandedHub === hub.stopId ? theme.primary : theme.border,
-              }]}
-              onPress={() => toggleHub(hub.stopId)}
-              activeOpacity={0.7}
+          <Surface key={hub.stopId} style={styles.hubCard} elevation={1}>
+            <List.Accordion
+              title={hub.stopName}
+              description={`${hub.connections.length} destination${hub.connections.length !== 1 ? 's' : ''}`}
+              expanded={expandedHub === hub.stopId}
+              onPress={() => setExpandedHub(prev => prev === hub.stopId ? null : hub.stopId)}
+              left={props => (
+                <View style={[styles.hubIcon, { backgroundColor: getHubBg(hub.stopType) }]}>
+                  <Icon source={getHubIcon(hub.stopType)} size={18} color={getHubColor(hub.stopType)} />
+                </View>
+              )}
+              style={{ paddingLeft: 0 }}
+              titleStyle={{ fontWeight: '700' }}
             >
-              <View style={styles.hubHeader}>
-                <View style={[styles.hubIcon, {
-                  backgroundColor: hub.stopType === 'bus' ? theme.busLight :
-                    hub.stopType === 'taxi' ? theme.taxiLight : theme.primaryLight,
-                }]}>
-                  <Ionicons
-                    name={hub.stopType === 'bus' ? 'bus' : hub.stopType === 'taxi' ? 'car' : 'swap-horizontal'}
-                    size={18}
-                    color={hub.stopType === 'bus' ? theme.bus : hub.stopType === 'taxi' ? theme.taxi : theme.primary}
-                  />
-                </View>
-                <View style={styles.hubInfo}>
-                  <Text style={[styles.hubName, { color: theme.text }]}>{hub.stopName}</Text>
-                  <Text style={[styles.hubCount, { color: theme.textSecondary }]}>
-                    {hub.connections.length} destination{hub.connections.length !== 1 ? 's' : ''}
-                  </Text>
-                </View>
-                <Ionicons
-                  name={expandedHub === hub.stopId ? 'chevron-up' : 'chevron-down'}
-                  size={18}
-                  color={theme.textSecondary}
-                />
-              </View>
-
-              {/* Expanded connections */}
-              {expandedHub === hub.stopId && (
-                <View style={[styles.connectionsList, { borderTopColor: theme.border }]}>
-                  {hub.connections.map((conn, idx) => {
-                    const dest = getStopById(conn.toStopId);
-                    if (!dest) return null;
-                    return (
-                      <View
-                        key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}
-                        style={[styles.connectionItem, {
-                          borderBottomColor: idx < hub.connections.length - 1 ? theme.border : 'transparent',
-                        }]}
-                      >
-                        <View style={styles.connectionLeft}>
-                          <Ionicons name="arrow-forward" size={14} color={theme.textSecondary} />
-                          <Text style={[styles.connectionName, { color: theme.text }]}>{dest.name}</Text>
+              {hub.connections.map((conn, idx) => {
+                const dest = getStopById(conn.toStopId);
+                if (!dest) return null;
+                return (
+                  <React.Fragment key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
+                    {idx > 0 && <Divider style={{ marginLeft: 56 }} />}
+                    <List.Item
+                      title={dest.name}
+                      titleStyle={{ fontSize: 13 }}
+                      left={() => (
+                        <View style={styles.connectionIconContainer}>
+                          <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
                         </View>
+                      )}
+                      right={() => (
                         <View style={styles.connectionRight}>
-                          <View style={[styles.transportTag, {
-                            backgroundColor: conn.transportType === 'bus' ? theme.busLight : theme.taxiLight,
-                          }]}>
-                            <Text style={[styles.transportTagText, {
-                              color: conn.transportType === 'bus' ? theme.bus : theme.taxi,
-                            }]}>
-                              {conn.transportType === 'bus' ? '🚌' : '🚕'}
-                            </Text>
-                          </View>
-                          <Text style={[styles.connectionTime, { color: theme.textSecondary }]}>
+                          <Chip
+                            compact
+                            mode="flat"
+                            textStyle={{ fontSize: 10 }}
+                            style={{
+                              backgroundColor: conn.transportType === 'bus' ? theme.colors.busLight : theme.colors.taxiLight,
+                            }}
+                          >
+                            {conn.transportType === 'bus' ? '🚌' : '🚕'}
+                          </Chip>
+                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
                             ~{conn.estimatedTime}m
                           </Text>
                           {conn.isPassingBy && (
-                            <View style={[styles.flagBadge, { backgroundColor: theme.accentLight }]}>
-                              <Text style={[styles.flagText, { color: theme.accent }]}>🤚</Text>
-                            </View>
+                            <Chip
+                              compact
+                              mode="flat"
+                              textStyle={{ fontSize: 10, color: theme.colors.accent }}
+                              style={{ backgroundColor: theme.colors.accentLight }}
+                            >
+                              🤚
+                            </Chip>
                           )}
                         </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
+                      )}
+                      style={styles.connectionItem}
+                    />
+                  </React.Fragment>
+                );
+              })}
+            </List.Accordion>
+          </Surface>
         ))}
 
         {filteredHubs.length === 0 && (
           <View style={styles.emptyState}>
-            <Ionicons name="search" size={48} color={theme.textSecondary} />
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+            <Icon source="magnify" size={48} color={theme.colors.onSurfaceVariant} />
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12 }}>
               No hubs match "{search}"
             </Text>
           </View>
@@ -239,67 +240,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   safeArea: {
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: 16,
     gap: 12,
   },
   header: {
-    paddingTop: Spacing.three,
+    paddingTop: 16,
     gap: 4,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-  },
-  subtitle: {
-    fontSize: 14,
-  },
   searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: Platform.select({ ios: 10, android: 4 }),
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    paddingVertical: Platform.select({ ios: 0, android: 6 }),
+    elevation: 0,
   },
   statsRow: {
     flexDirection: 'row',
     gap: 8,
   },
-  statChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: BorderRadius.full,
-    gap: 4,
-  },
-  statText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: Spacing.three,
+    padding: 16,
     gap: 10,
   },
   hubCard: {
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
+    borderRadius: 16,
     overflow: 'hidden',
-  },
-  hubHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.three,
-    gap: 12,
   },
   hubIcon: {
     width: 40,
@@ -307,71 +271,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 16,
   },
-  hubInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  hubName: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  hubCount: {
-    fontSize: 12,
-  },
-  connectionsList: {
-    borderTopWidth: 1,
-    paddingHorizontal: Spacing.three,
-  },
-  connectionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  connectionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flex: 1,
-  },
-  connectionName: {
-    fontSize: 13,
-    fontWeight: '500',
+  connectionIconContainer: {
+    justifyContent: 'center',
+    marginLeft: 16,
   },
   connectionRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  transportTag: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-  },
-  transportTagText: {
-    fontSize: 11,
-  },
-  connectionTime: {
-    fontSize: 11,
-    minWidth: 30,
-    textAlign: 'right',
-  },
-  flagBadge: {
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-  },
-  flagText: {
-    fontSize: 10,
+  connectionItem: {
+    paddingVertical: 4,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 48,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
   },
 });

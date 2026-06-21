@@ -1,43 +1,31 @@
 /**
  * App Tabs — Bottom tab navigation (Native)
  *
- * 4 tabs: Home, Map, Routes, Saved
- * Uses expo-router Tabs with Ionicons for icons.
+ * 3 tabs: Home, Routes, Saved
+ * Uses expo-router Tabs with MaterialCommunityIcons for icons.
  */
 
 import { Tabs } from 'expo-router';
-import { useColorScheme, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Platform } from 'react-native';
+import { Icon } from 'react-native-paper';
 
-import { Colors } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
+  const theme = useAppTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.outline,
           borderTopWidth: 1,
           paddingTop: 4,
           height: Platform.select({ ios: 88, android: 64 }),
-          ...Platform.select({
-            ios: {
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.06,
-              shadowRadius: 8,
-            },
-            android: {
-              elevation: 8,
-            },
-          }),
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -51,7 +39,7 @@ export default function AppTabs() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="navigate" size={size} color={color} />
+            <Icon source="compass" size={size} color={color as string} />
           ),
         }}
       />
@@ -61,7 +49,7 @@ export default function AppTabs() {
         options={{
           title: 'Routes',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="git-branch" size={size} color={color} />
+            <Icon source="source-branch" size={size} color={color as string} />
           ),
         }}
       />
@@ -70,15 +58,8 @@ export default function AppTabs() {
         options={{
           title: 'Saved',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bookmark" size={size} color={color} />
+            <Icon source="bookmark" size={size} color={color as string} />
           ),
-        }}
-      />
-      {/* Hide the explore route from tabs */}
-      <Tabs.Screen
-        name="explore"
-        options={{
-          href: null,
         }}
       />
     </Tabs>

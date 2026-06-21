@@ -2,52 +2,55 @@
  * Saved Routes Screen — User's favorite/bookmarked routes
  *
  * Shows persisted route searches that the user has saved.
- * Supports quick re-search and swipe-to-delete.
+ * Supports quick re-search and delete with Paper Dialog confirmation.
  */
 
 import React, { useCallback, useState } from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   Platform,
   StatusBar,
-  Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Text,
+  Card,
+  IconButton,
+  Button,
+  Icon,
+  Dialog,
+  Portal,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { useSavedRoutes } from '@/hooks/use-saved-routes';
 import { SavedRoute } from '@/data/types';
-import { useTheme } from '@/hooks/use-theme';
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
 
 export default function SavedScreen() {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const router = useRouter();
   const { savedRoutes, removeRoute, isLoaded } = useSavedRoutes();
+  const [deleteTarget, setDeleteTarget] = useState<SavedRoute | null>(null);
 
   const handleDelete = useCallback((route: SavedRoute) => {
     if (Platform.OS === 'web') {
       removeRoute(route.id);
       return;
     }
-    Alert.alert(
-      'Remove Saved Route',
-      `Remove ${route.fromStopName} → ${route.toStopName} from saved?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Remove', style: 'destructive', onPress: () => removeRoute(route.id) },
-      ]
-    );
+    setDeleteTarget(route);
   }, [removeRoute]);
 
+  const confirmDelete = useCallback(() => {
+    if (deleteTarget) {
+      removeRoute(deleteTarget.id);
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, removeRoute]);
+
   const handleSearch = useCallback((route: SavedRoute) => {
-    // Navigate to home tab — the user will need to search again
-    // In a more advanced version, we could pass params
     router.navigate('/');
   }, [router]);
 
@@ -64,13 +67,13 @@ export default function SavedScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Saved</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+          <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Saved</Text>
+          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
             Your bookmarked routes
           </Text>
         </View>
@@ -83,78 +86,91 @@ export default function SavedScreen() {
       >
         {!isLoaded ? (
           <View style={styles.loadingState}>
-            <Text style={[styles.loadingText, { color: theme.textSecondary }]}>Loading...</Text>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              Loading...
+            </Text>
           </View>
         ) : savedRoutes.length === 0 ? (
           <View style={styles.emptyState}>
-            <View style={[styles.emptyIcon, { backgroundColor: theme.primaryLight }]}>
-              <Ionicons name="bookmark-outline" size={48} color={theme.primary} />
+            <View style={[styles.emptyIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+              <Icon source="bookmark-outline" size={48} color={theme.colors.primary} />
             </View>
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>No saved routes yet</Text>
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+            <Text variant="titleMedium" style={{ fontWeight: '700' }}>No saved routes yet</Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', lineHeight: 20 }}>
               When you find a route on the Home tab, tap the bookmark icon to save it here for quick access.
             </Text>
-            <TouchableOpacity
-              style={[styles.emptyButton, { backgroundColor: theme.primary }]}
+            <Button
+              mode="contained"
+              icon="magnify"
               onPress={() => router.navigate('/')}
-              activeOpacity={0.8}
+              style={{ marginTop: 8, borderRadius: 20 }}
             >
-              <Ionicons name="search" size={16} color="#FFFFFF" />
-              <Text style={styles.emptyButtonText}>Find a Route</Text>
-            </TouchableOpacity>
+              Find a Route
+            </Button>
           </View>
         ) : (
           <>
-            <Text style={[styles.savedCount, { color: theme.textSecondary }]}>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 4 }}>
               {savedRoutes.length} saved route{savedRoutes.length !== 1 ? 's' : ''}
             </Text>
             {savedRoutes.map(route => (
-              <View
-                key={route.id}
-                style={[styles.savedCard, { backgroundColor: theme.card, borderColor: theme.border }]}
-              >
-                <View style={styles.savedCardContent}>
-                  <View style={[styles.savedIcon, { backgroundColor: theme.primaryLight }]}>
-                    <Ionicons name="navigate" size={20} color={theme.primary} />
+              <Card key={route.id} style={styles.savedCard}>
+                <Card.Content style={styles.savedCardContent}>
+                  <View style={[styles.savedIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                    <Icon source="compass" size={20} color={theme.colors.primary} />
                   </View>
                   <View style={styles.savedInfo}>
-                    <Text style={[styles.savedRoute, { color: theme.text }]}>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
                       {route.fromStopName}
                     </Text>
                     <View style={styles.arrowRow}>
-                      <Ionicons name="arrow-down" size={14} color={theme.textSecondary} />
+                      <Icon source="arrow-down" size={14} color={theme.colors.onSurfaceVariant} />
                     </View>
-                    <Text style={[styles.savedRoute, { color: theme.text }]}>
+                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
                       {route.toStopName}
                     </Text>
-                    <Text style={[styles.savedDate, { color: theme.textSecondary }]}>
+                    <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
                       Saved {formatDate(route.savedAt)}
                     </Text>
                   </View>
                   <View style={styles.savedActions}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, { backgroundColor: theme.primaryLight }]}
+                    <IconButton
+                      icon="magnify"
+                      size={16}
+                      mode="contained-tonal"
                       onPress={() => handleSearch(route)}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="search" size={16} color={theme.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, { backgroundColor: theme.backgroundElement }]}
+                    />
+                    <IconButton
+                      icon="trash-can-outline"
+                      size={16}
+                      iconColor={theme.colors.error}
                       onPress={() => handleDelete(route)}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons name="trash-outline" size={16} color={theme.error} />
-                    </TouchableOpacity>
+                    />
                   </View>
-                </View>
-              </View>
+                </Card.Content>
+              </Card>
             ))}
           </>
         )}
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      {/* Delete Confirmation Dialog */}
+      <Portal>
+        <Dialog visible={deleteTarget !== null} onDismiss={() => setDeleteTarget(null)}>
+          <Dialog.Title>Remove Saved Route</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              Remove {deleteTarget?.fromStopName} → {deleteTarget?.toStopName} from saved?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button onPress={confirmDelete} textColor={theme.colors.error}>Remove</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
@@ -164,40 +180,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   safeArea: {
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: 16,
   },
   header: {
-    paddingTop: Spacing.three,
+    paddingTop: 16,
     gap: 4,
-    paddingBottom: Spacing.three,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-  },
-  subtitle: {
-    fontSize: 14,
+    paddingBottom: 16,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: Spacing.three,
+    padding: 16,
     gap: 10,
   },
-  savedCount: {
-    fontSize: 13,
-    marginBottom: 4,
-  },
   savedCard: {
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     overflow: 'hidden',
   },
   savedCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.three,
     gap: 12,
   },
   savedIcon: {
@@ -211,39 +213,21 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  savedRoute: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
   arrowRow: {
     paddingLeft: 2,
     paddingVertical: 2,
   },
-  savedDate: {
-    fontSize: 11,
-    marginTop: 4,
-  },
   savedActions: {
-    gap: 8,
-  },
-  actionButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
   },
   loadingState: {
     alignItems: 'center',
     paddingVertical: 48,
   },
-  loadingText: {
-    fontSize: 14,
-  },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 48,
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: 24,
     gap: 16,
   },
   emptyIcon: {
@@ -253,28 +237,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  emptyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: BorderRadius.full,
-    gap: 8,
-    marginTop: 8,
-  },
-  emptyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
   },
 });

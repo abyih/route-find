@@ -1,14 +1,13 @@
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * useAppTheme — Returns the Paper MD3 theme with custom app colors.
+ *
+ * Wraps Paper's useTheme() and casts to our AppTheme type
+ * so consumers get autocomplete for custom colors like bus, taxi, etc.
  */
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from 'react-native-paper';
+import type { AppTheme } from '@/constants/theme';
 
-export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
-
-  return Colors[theme];
+export function useAppTheme() {
+  return useTheme<AppTheme>();
 }

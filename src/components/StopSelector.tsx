@@ -2,40 +2,46 @@
  * StopSelector — Searchable dropdown for selecting transit stops
  *
  * Features:
- * - Fuzzy text search
- * - Modal presentation
- * - Shows stop type (bus/taxi) with colored badges
+ * - Fuzzy text search via Paper Searchbar
+ * - Portal-based modal presentation
+ * - Shows stop type (bus/taxi) with Paper Chips
  * - Notes for passing-by stops
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Modal,
   FlatList,
   StyleSheet,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Portal,
+  Modal,
+  Searchbar,
+  Text,
+  TouchableRipple,
+  Surface,
+  Chip,
+  Icon,
+  IconButton,
+  Divider,
+} from 'react-native-paper';
 import { getAllStopsSorted } from '@/data/routeData';
 import { Stop } from '@/data/types';
-import { useTheme } from '@/hooks/use-theme';
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
 
 interface StopSelectorProps {
   label: string;
   placeholder: string;
   selectedStop: Stop | null;
   onSelect: (stop: Stop) => void;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: string;
 }
 
 export function StopSelector({ label, placeholder, selectedStop, onSelect, icon }: StopSelectorProps) {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -56,94 +62,113 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
     setSearch('');
   }, [onSelect]);
 
+  const getStopIcon = (type: string) => {
+    if (type === 'bus') return 'bus';
+    if (type === 'taxi') return 'taxi';
+    return 'swap-horizontal';
+  };
+
+  const getStopColor = (type: string) => {
+    if (type === 'bus') return theme.colors.bus;
+    if (type === 'taxi') return theme.colors.taxi;
+    return theme.colors.primary;
+  };
+
+  const getStopBg = (type: string) => {
+    if (type === 'bus') return theme.colors.busLight;
+    if (type === 'taxi') return theme.colors.taxiLight;
+    return theme.colors.primaryLight;
+  };
+
   const renderStop = useCallback(({ item }: { item: Stop }) => (
-    <TouchableOpacity
-      style={[styles.stopItem, { borderBottomColor: theme.border }]}
-      onPress={() => handleSelect(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.stopItemLeft}>
-        <View style={[
-          styles.stopTypeBadge,
-          { backgroundColor: item.type === 'bus' ? theme.busLight : item.type === 'taxi' ? theme.taxiLight : theme.primaryLight }
-        ]}>
-          <Ionicons
-            name={item.type === 'bus' ? 'bus' : item.type === 'taxi' ? 'car' : 'swap-horizontal'}
-            size={14}
-            color={item.type === 'bus' ? theme.bus : item.type === 'taxi' ? theme.taxi : theme.primary}
-          />
+    <TouchableRipple onPress={() => handleSelect(item)} style={styles.stopItem}>
+      <View style={styles.stopItemInner}>
+        <View style={styles.stopItemLeft}>
+          <View style={[styles.stopTypeBadge, { backgroundColor: getStopBg(item.type) }]}>
+            <Icon source={getStopIcon(item.type)} size={16} color={getStopColor(item.type)} />
+          </View>
+          <View style={styles.stopItemText}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+              {item.name}
+            </Text>
+            {item.note && (
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }} numberOfLines={1}>
+                {item.note}
+              </Text>
+            )}
+          </View>
         </View>
-        <View style={styles.stopItemText}>
-          <Text style={[styles.stopName, { color: theme.text }]}>{item.name}</Text>
-          {item.note && (
-            <Text style={[styles.stopNote, { color: theme.textSecondary }]} numberOfLines={1}>{item.note}</Text>
-          )}
-        </View>
+        {item.isPassingBy && (
+          <Chip
+            compact
+            mode="flat"
+            textStyle={{ fontSize: 10, color: theme.colors.accent }}
+            style={{ backgroundColor: theme.colors.accentLight }}
+          >
+            Flag down
+          </Chip>
+        )}
       </View>
-      {item.isPassingBy && (
-        <View style={[styles.passingByBadge, { backgroundColor: theme.accentLight }]}>
-          <Text style={[styles.passingByText, { color: theme.accent }]}>Flag down</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+    </TouchableRipple>
   ), [theme, handleSelect]);
 
   return (
     <>
-      <TouchableOpacity
-        style={[styles.selector, { backgroundColor: theme.card, borderColor: theme.border }]}
+      <TouchableRipple
         onPress={() => setVisible(true)}
-        activeOpacity={0.7}
+        style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}
+        borderless
       >
-        <View style={[styles.iconContainer, { backgroundColor: theme.primaryLight }]}>
-          <Ionicons name={icon} size={18} color={theme.primary} />
+        <View style={styles.selectorInner}>
+          <View style={[styles.iconContainer, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Icon source={icon} size={18} color={theme.colors.primary} />
+          </View>
+          <View style={styles.selectorTextContainer}>
+            <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              {label}
+            </Text>
+            <Text
+              variant="bodyLarge"
+              style={{ color: selectedStop ? theme.colors.onSurface : theme.colors.onSurfaceVariant }}
+              numberOfLines={1}
+            >
+              {selectedStop?.name || placeholder}
+            </Text>
+          </View>
+          <Icon source="chevron-down" size={18} color={theme.colors.onSurfaceVariant} />
         </View>
-        <View style={styles.selectorTextContainer}>
-          <Text style={[styles.selectorLabel, { color: theme.textSecondary }]}>{label}</Text>
-          <Text
-            style={[
-              styles.selectorValue,
-              { color: selectedStop ? theme.text : theme.textSecondary },
-            ]}
-            numberOfLines={1}
-          >
-            {selectedStop?.name || placeholder}
-          </Text>
-        </View>
-        <Ionicons name="chevron-down" size={18} color={theme.textSecondary} />
-      </TouchableOpacity>
+      </TouchableRipple>
 
-      <Modal visible={visible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <Portal>
+        <Modal
+          visible={visible}
+          onDismiss={() => { setVisible(false); setSearch(''); }}
+          contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
         >
-          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.modalInner}
+          >
             {/* Header */}
-            <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>{label}</Text>
-              <TouchableOpacity onPress={() => { setVisible(false); setSearch(''); }}>
-                <Ionicons name="close-circle" size={28} color={theme.textSecondary} />
-              </TouchableOpacity>
+            <View style={styles.modalHeader}>
+              <Text variant="titleMedium">{label}</Text>
+              <IconButton
+                icon="close-circle"
+                size={24}
+                onPress={() => { setVisible(false); setSearch(''); }}
+              />
             </View>
+
+            <Divider />
 
             {/* Search */}
-            <View style={[styles.searchContainer, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
-              <Ionicons name="search" size={18} color={theme.textSecondary} />
-              <TextInput
-                style={[styles.searchInput, { color: theme.text }]}
-                placeholder="Search stops..."
-                placeholderTextColor={theme.textSecondary}
-                value={search}
-                onChangeText={setSearch}
-                autoFocus
-              />
-              {search.length > 0 && (
-                <TouchableOpacity onPress={() => setSearch('')}>
-                  <Ionicons name="close" size={18} color={theme.textSecondary} />
-                </TouchableOpacity>
-              )}
-            </View>
+            <Searchbar
+              placeholder="Search stops..."
+              value={search}
+              onChangeText={setSearch}
+              style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
+              autoFocus
+            />
 
             {/* Stop List */}
             <FlatList
@@ -152,36 +177,40 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               renderItem={renderStop}
               style={styles.stopList}
               keyboardShouldPersistTaps="handled"
+              ItemSeparatorComponent={Divider}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
-                  <Ionicons name="alert-circle-outline" size={48} color={theme.textSecondary} />
-                  <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                  <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />
+                  <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12 }}>
                     No stops found for "{search}"
                   </Text>
                 </View>
               }
             />
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+          </KeyboardAvoidingView>
+        </Modal>
+      </Portal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   selector: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  selectorInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     gap: 12,
   },
   iconContainer: {
     width: 36,
     height: 36,
-    borderRadius: BorderRadius.sm,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -189,64 +218,42 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  selectorLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  selectorValue: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
   modalContent: {
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     maxHeight: '85%',
     minHeight: '60%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  modalInner: {
+    flex: 1,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.three,
-    borderBottomWidth: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: Spacing.three,
-    marginVertical: Spacing.two,
-    paddingHorizontal: 12,
-    paddingVertical: Platform.select({ ios: 10, android: 4 }),
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    paddingVertical: Platform.select({ ios: 0, android: 6 }),
+  searchbar: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    elevation: 0,
   },
   stopList: {
     flex: 1,
   },
   stopItem: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  stopItemInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   stopItemLeft: {
     flexDirection: 'row',
@@ -265,29 +272,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  stopName: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  stopNote: {
-    fontSize: 12,
-  },
-  passingByBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
-  },
-  passingByText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 48,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
   },
 });

@@ -2,23 +2,29 @@
  * Home Screen — Route Search
  *
  * The main screen where users select origin/destination and find routes.
- * Features a premium gradient header, searchable stop selectors,
+ * Features a gradient header, searchable stop selectors,
  * route results with visual timelines, and popular route suggestions.
  */
 
 import React, { useState, useCallback } from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
   Platform,
   StatusBar,
 } from 'react-native';
+import {
+  Text,
+  Button,
+  IconButton,
+  Card,
+  Icon,
+  ActivityIndicator,
+  Divider,
+  Surface,
+} from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { StopSelector } from '@/components/StopSelector';
@@ -26,9 +32,8 @@ import { RouteCard } from '@/components/RouteCard';
 import { findRoutes } from '@/data/routeEngine';
 import { getStopById } from '@/data/routeData';
 import { Stop, RouteResult, SavedRoute } from '@/data/types';
-import { useTheme } from '@/hooks/use-theme';
+import { useAppTheme } from '@/hooks/use-theme';
 import { useSavedRoutes } from '@/hooks/use-saved-routes';
-import { BorderRadius, Spacing } from '@/constants/theme';
 
 // Popular routes for quick suggestions
 const POPULAR_ROUTES = [
@@ -40,7 +45,7 @@ const POPULAR_ROUTES = [
 ];
 
 export default function HomeScreen() {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { saveRoute, removeRoute, isRouteSaved } = useSavedRoutes();
 
   const [fromStop, setFromStop] = useState<Stop | null>(null);
@@ -106,7 +111,7 @@ export default function HomeScreen() {
   }, [isRouteSaved, saveRoute, removeRoute]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView
         style={styles.scrollView}
@@ -116,7 +121,7 @@ export default function HomeScreen() {
       >
         {/* Hero Header */}
         <LinearGradient
-          colors={[theme.gradient1, theme.gradient2]}
+          colors={[theme.colors.gradient1, theme.colors.gradient2]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroGradient}
@@ -125,14 +130,14 @@ export default function HomeScreen() {
             <View style={styles.heroContent}>
               <View style={styles.heroTitleRow}>
                 <View style={styles.heroIcon}>
-                  <Ionicons name="navigate" size={24} color="#FFFFFF" />
+                  <Icon source="compass" size={24} color="#FFFFFF" />
                 </View>
                 <View>
-                  <Text style={styles.heroTitle}>Route Finder</Text>
-                  <Text style={styles.heroSubtitle}>Addis Ababa Transit</Text>
+                  <Text variant="headlineSmall" style={styles.heroTitle}>Route Finder</Text>
+                  <Text variant="bodySmall" style={styles.heroSubtitle}>Addis Ababa Transit</Text>
                 </View>
               </View>
-              <Text style={styles.heroDescription}>
+              <Text variant="bodySmall" style={styles.heroDescription}>
                 Find the best way to get around the city using minibus taxis and buses
               </Text>
             </View>
@@ -140,27 +145,27 @@ export default function HomeScreen() {
         </LinearGradient>
 
         {/* Search Section */}
-        <View style={[styles.searchSection, { backgroundColor: theme.background }]}>
+        <View style={[styles.searchSection, { backgroundColor: theme.colors.background }]}>
           <View style={styles.searchCard}>
             <StopSelector
               label="From"
               placeholder="Where are you?"
               selectedStop={fromStop}
               onSelect={setFromStop}
-              icon="location"
+              icon="map-marker"
             />
 
             {/* Swap button */}
             <View style={styles.swapRow}>
-              <View style={[styles.swapLine, { backgroundColor: theme.border }]} />
-              <TouchableOpacity
-                style={[styles.swapButton, { backgroundColor: theme.card, borderColor: theme.border }]}
+              <Divider style={styles.swapLine} />
+              <IconButton
+                icon="swap-vertical"
+                size={18}
+                mode="outlined"
                 onPress={handleSwap}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="swap-vertical" size={18} color={theme.primary} />
-              </TouchableOpacity>
-              <View style={[styles.swapLine, { backgroundColor: theme.border }]} />
+                style={styles.swapButton}
+              />
+              <Divider style={styles.swapLine} />
             </View>
 
             <StopSelector
@@ -172,31 +177,18 @@ export default function HomeScreen() {
             />
 
             {/* Search Button */}
-            <LinearGradient
-              colors={[
-                fromStop && toStop ? theme.gradient1 : theme.border,
-                fromStop && toStop ? theme.gradient2 : theme.border,
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[styles.searchButtonGradient, { opacity: fromStop && toStop ? 1 : 0.5 }]}
+            <Button
+              mode="contained"
+              icon="magnify"
+              onPress={handleSearch}
+              disabled={!fromStop || !toStop || searching}
+              loading={searching}
+              style={styles.searchButton}
+              contentStyle={styles.searchButtonContent}
+              labelStyle={styles.searchButtonLabel}
             >
-              <TouchableOpacity
-                style={styles.searchButton}
-                onPress={handleSearch}
-                disabled={!fromStop || !toStop || searching}
-                activeOpacity={0.8}
-              >
-                {searching ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <>
-                    <Ionicons name="search" size={18} color="#FFFFFF" />
-                    <Text style={styles.searchButtonText}>Find Routes</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </LinearGradient>
+              Find Routes
+            </Button>
           </View>
         </View>
 
@@ -205,7 +197,7 @@ export default function HomeScreen() {
           <View style={styles.resultsSection}>
             {results.length > 0 ? (
               <>
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                <Text variant="titleMedium" style={{ marginBottom: 4 }}>
                   {results.length} route{results.length > 1 ? 's' : ''} found
                 </Text>
                 <View style={styles.resultsList}>
@@ -227,13 +219,15 @@ export default function HomeScreen() {
                 </View>
               </>
             ) : (
-              <View style={[styles.noResults, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <Ionicons name="alert-circle-outline" size={48} color={theme.textSecondary} />
-                <Text style={[styles.noResultsTitle, { color: theme.text }]}>No routes found</Text>
-                <Text style={[styles.noResultsText, { color: theme.textSecondary }]}>
-                  We couldn't find a route between these stops. Try a different combination or check the Routes tab for all connections.
-                </Text>
-              </View>
+              <Card style={styles.noResultsCard}>
+                <Card.Content style={styles.noResults}>
+                  <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />
+                  <Text variant="titleSmall" style={{ marginTop: 12 }}>No routes found</Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', lineHeight: 18 }}>
+                    We couldn't find a route between these stops. Try a different combination or check the Routes tab for all connections.
+                  </Text>
+                </Card.Content>
+              </Card>
             )}
           </View>
         )}
@@ -241,25 +235,26 @@ export default function HomeScreen() {
         {/* Popular Routes (shown when no search has been done) */}
         {!hasSearched && (
           <View style={styles.popularSection}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            <Text variant="titleMedium" style={{ marginBottom: 4 }}>
               Popular Routes
             </Text>
             <View style={styles.popularGrid}>
               {POPULAR_ROUTES.map((pr) => (
-                <TouchableOpacity
+                <Card
                   key={pr.label}
-                  style={[styles.popularCard, { backgroundColor: theme.card, borderColor: theme.border }]}
                   onPress={() => handlePopularRoute(pr.from, pr.to)}
-                  activeOpacity={0.7}
+                  style={styles.popularCard}
                 >
-                  <View style={[styles.popularIcon, { backgroundColor: theme.primaryLight }]}>
-                    <Ionicons name="trending-up" size={16} color={theme.primary} />
-                  </View>
-                  <Text style={[styles.popularLabel, { color: theme.text }]} numberOfLines={1}>
-                    {pr.label}
-                  </Text>
-                  <Ionicons name="arrow-forward" size={14} color={theme.textSecondary} />
-                </TouchableOpacity>
+                  <Card.Content style={styles.popularCardContent}>
+                    <View style={[styles.popularIcon, { backgroundColor: theme.colors.primaryContainer }]}>
+                      <Icon source="trending-up" size={16} color={theme.colors.primary} />
+                    </View>
+                    <Text variant="bodyMedium" numberOfLines={1} style={{ flex: 1 }}>
+                      {pr.label}
+                    </Text>
+                    <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
+                  </Card.Content>
+                </Card>
               ))}
             </View>
           </View>
@@ -286,11 +281,11 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   heroSafeArea: {
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: 24,
     paddingTop: Platform.select({ android: StatusBar.currentHeight ?? 20, default: 0 }),
   },
   heroContent: {
-    paddingTop: Spacing.four,
+    paddingTop: 24,
     gap: 12,
   },
   heroTitleRow: {
@@ -307,23 +302,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heroTitle: {
-    fontSize: 24,
-    fontWeight: '800',
     color: '#FFFFFF',
+    fontWeight: '800',
   },
   heroSubtitle: {
-    fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
-    fontWeight: '500',
   },
   heroDescription: {
-    fontSize: 14,
     color: 'rgba(255,255,255,0.7)',
     lineHeight: 20,
   },
   searchSection: {
     marginTop: -24,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: 16,
   },
   searchCard: {
     gap: 0,
@@ -333,81 +324,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: -4,
     zIndex: 1,
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: 24,
   },
   swapLine: {
     flex: 1,
-    height: 1,
   },
   swapButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
     marginHorizontal: 8,
   },
-  searchButtonGradient: {
-    borderRadius: BorderRadius.lg,
-    marginTop: Spacing.three,
-  },
   searchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    gap: 8,
+    marginTop: 16,
+    borderRadius: 16,
   },
-  searchButtonText: {
-    color: '#FFFFFF',
+  searchButtonContent: {
+    paddingVertical: 6,
+  },
+  searchButtonLabel: {
     fontSize: 16,
     fontWeight: '700',
   },
   resultsSection: {
-    paddingHorizontal: Spacing.three,
-    paddingTop: Spacing.four,
-    gap: Spacing.three,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    gap: 16,
   },
   resultsList: {
     gap: 12,
   },
+  noResultsCard: {
+    overflow: 'hidden',
+  },
   noResults: {
     alignItems: 'center',
-    padding: Spacing.five,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
-    gap: 12,
-  },
-  noResultsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  noResultsText: {
-    fontSize: 13,
-    textAlign: 'center',
-    lineHeight: 18,
+    padding: 32,
+    gap: 8,
   },
   popularSection: {
-    paddingHorizontal: Spacing.three,
-    paddingTop: Spacing.four,
-    gap: Spacing.three,
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    gap: 16,
   },
   popularGrid: {
     gap: 8,
   },
   popularCard: {
+    overflow: 'hidden',
+  },
+  popularCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: 14,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
     gap: 12,
   },
   popularIcon: {
@@ -416,10 +381,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  popularLabel: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '500',
   },
 });

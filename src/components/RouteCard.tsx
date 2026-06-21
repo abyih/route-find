@@ -2,20 +2,22 @@
  * RouteCard — Displays a route search result
  *
  * Shows a visual timeline of segments with transfer indicators,
- * time badges, and an expandable detail view.
+ * time badges, and an expandable detail view using Paper components.
  */
 
 import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
-  View,
+  Card,
+  Chip,
   Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+  Icon,
+  IconButton,
+  Divider,
+  TouchableRipple,
+} from 'react-native-paper';
 import { RouteResult } from '@/data/types';
-import { useTheme } from '@/hooks/use-theme';
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-theme';
 
 interface RouteCardProps {
   route: RouteResult;
@@ -25,182 +27,188 @@ interface RouteCardProps {
 }
 
 export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const [expanded, setExpanded] = useState(false);
 
   const firstStop = route.segments[0].fromStop;
   const lastStop = route.segments[route.segments.length - 1].toStop;
 
   return (
-    <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+    <Card
+      style={styles.card}
       onPress={() => setExpanded(!expanded)}
-      activeOpacity={0.8}
     >
       {/* Header */}
-      <View style={styles.cardHeader}>
-        <View style={[styles.routeNumber, { backgroundColor: theme.primaryLight }]}>
-          <Text style={[styles.routeNumberText, { color: theme.primary }]}>
-            {index + 1}
-          </Text>
-        </View>
-        <View style={styles.headerInfo}>
-          <View style={styles.headerRow}>
-            <Text style={[styles.routeTitle, { color: theme.text }]} numberOfLines={1}>
-              {firstStop.name} → {lastStop.name}
+      <Card.Content style={styles.cardHeader}>
+        <View style={styles.headerTop}>
+          <View style={[styles.routeNumber, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Text variant="labelMedium" style={{ color: theme.colors.primary, fontWeight: '700' }}>
+              {index + 1}
             </Text>
-            {onSave && (
-              <TouchableOpacity onPress={() => onSave(route)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <Ionicons
-                  name={isSaved ? 'bookmark' : 'bookmark-outline'}
-                  size={20}
-                  color={isSaved ? theme.accent : theme.textSecondary}
-                />
-              </TouchableOpacity>
-            )}
           </View>
-          <View style={styles.badges}>
-            <View style={[styles.badge, { backgroundColor: theme.primaryLight }]}>
-              <Ionicons name="time-outline" size={12} color={theme.primary} />
-              <Text style={[styles.badgeText, { color: theme.primary }]}>~{route.totalTime} min</Text>
+          <View style={styles.headerInfo}>
+            <View style={styles.headerRow}>
+              <Text variant="titleSmall" numberOfLines={1} style={{ flex: 1, marginRight: 8 }}>
+                {firstStop.name} → {lastStop.name}
+              </Text>
+              {onSave && (
+                <IconButton
+                  icon={isSaved ? 'bookmark' : 'bookmark-outline'}
+                  size={18}
+                  iconColor={isSaved ? theme.colors.accent : theme.colors.onSurfaceVariant}
+                  onPress={() => onSave(route)}
+                  style={styles.saveButton}
+                />
+              )}
             </View>
-            {route.transferCount > 0 && (
-              <View style={[styles.badge, { backgroundColor: theme.accentLight }]}>
-                <Ionicons name="swap-horizontal" size={12} color={theme.accent} />
-                <Text style={[styles.badgeText, { color: theme.accent }]}>
+            <View style={styles.badges}>
+              <Chip
+                compact
+                mode="flat"
+                icon="clock-outline"
+                textStyle={styles.chipText}
+                style={{ backgroundColor: theme.colors.primaryContainer }}
+              >
+                ~{route.totalTime} min
+              </Chip>
+              {route.transferCount > 0 ? (
+                <Chip
+                  compact
+                  mode="flat"
+                  icon="swap-horizontal"
+                  textStyle={styles.chipText}
+                  style={{ backgroundColor: theme.colors.secondaryContainer }}
+                >
                   {route.transferCount} transfer{route.transferCount > 1 ? 's' : ''}
-                </Text>
-              </View>
-            )}
-            {route.transferCount === 0 && (
-              <View style={[styles.badge, { backgroundColor: theme.successLight }]}>
-                <Ionicons name="checkmark-circle" size={12} color={theme.success} />
-                <Text style={[styles.badgeText, { color: theme.success }]}>Direct</Text>
-              </View>
-            )}
+                </Chip>
+              ) : (
+                <Chip
+                  compact
+                  mode="flat"
+                  icon="check-circle"
+                  textStyle={styles.chipText}
+                  style={{ backgroundColor: theme.colors.tertiaryContainer }}
+                >
+                  Direct
+                </Chip>
+              )}
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Quick Overview (always visible) */}
-      <View style={styles.quickOverview}>
-        {route.segments.map((seg, i) => (
-          <React.Fragment key={i}>
-            {i === 0 && (
-              <View style={[styles.stopDot, { backgroundColor: theme.primary }]} />
-            )}
-            <View style={[styles.segmentLine, {
-              backgroundColor: seg.transportType === 'bus' ? theme.bus : theme.taxi
-            }]} />
-            {i < route.segments.length - 1 && (
-              <View style={[styles.transferDot, { backgroundColor: theme.accent, borderColor: theme.card }]} />
-            )}
-            {i === route.segments.length - 1 && (
-              <View style={[styles.stopDot, { backgroundColor: theme.success }]} />
-            )}
-          </React.Fragment>
-        ))}
-      </View>
+        {/* Quick Overview (always visible) */}
+        <View style={styles.quickOverview}>
+          {route.segments.map((seg, i) => (
+            <React.Fragment key={i}>
+              {i === 0 && (
+                <View style={[styles.stopDot, { backgroundColor: theme.colors.primary }]} />
+              )}
+              <View style={[styles.segmentLine, {
+                backgroundColor: seg.transportType === 'bus' ? theme.colors.bus : theme.colors.taxi,
+              }]} />
+              {i < route.segments.length - 1 && (
+                <View style={[styles.transferDot, { backgroundColor: theme.colors.accent, borderColor: theme.colors.surface }]} />
+              )}
+              {i === route.segments.length - 1 && (
+                <View style={[styles.stopDot, { backgroundColor: theme.colors.success }]} />
+              )}
+            </React.Fragment>
+          ))}
+        </View>
+      </Card.Content>
 
       {/* Expanded Details */}
       {expanded && (
-        <View style={[styles.details, { borderTopColor: theme.border }]}>
-          {route.segments.map((seg, i) => (
-            <View key={i} style={styles.segmentDetail}>
-              {/* From stop */}
-              <View style={styles.timelineRow}>
-                <View style={styles.timelineDotContainer}>
-                  <View style={[styles.timelineDot, {
-                    backgroundColor: i === 0 ? theme.primary : theme.accent,
-                  }]} />
-                  <View style={[styles.timelineLineVertical, {
-                    backgroundColor: seg.transportType === 'bus' ? theme.bus : theme.taxi,
-                  }]} />
-                </View>
-                <View style={styles.segmentInfo}>
-                  <Text style={[styles.segmentStopName, { color: theme.text }]}>
-                    {seg.fromStop.name}
-                  </Text>
-                  <View style={styles.segmentMeta}>
-                    <View style={[styles.transportBadge, {
-                      backgroundColor: seg.transportType === 'bus' ? theme.busLight : theme.taxiLight,
-                    }]}>
-                      <Ionicons
-                        name={seg.transportType === 'bus' ? 'bus' : 'car'}
-                        size={10}
-                        color={seg.transportType === 'bus' ? theme.bus : theme.taxi}
-                      />
-                      <Text style={[styles.transportText, {
-                        color: seg.transportType === 'bus' ? theme.bus : theme.taxi,
-                      }]}>
-                        {seg.transportType === 'bus' ? 'Bus' : 'Taxi'}
-                      </Text>
-                    </View>
-                    <Text style={[styles.segmentMetaText, { color: theme.textSecondary }]}>
-                      ~{seg.estimatedTime} min
-                    </Text>
-                  </View>
-                  {seg.isPassingBy && (
-                    <View style={[styles.passingByNote, { backgroundColor: theme.accentLight }]}>
-                      <Ionicons name="hand-left-outline" size={12} color={theme.accent} />
-                      <Text style={[styles.passingByNoteText, { color: theme.accent }]}>
-                        Flag down a passing taxi
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-
-              {/* To stop (only for last segment) */}
-              {i === route.segments.length - 1 && (
+        <>
+          <Divider />
+          <Card.Content style={styles.details}>
+            {route.segments.map((seg, i) => (
+              <View key={i} style={styles.segmentDetail}>
+                {/* From stop */}
                 <View style={styles.timelineRow}>
                   <View style={styles.timelineDotContainer}>
-                    <View style={[styles.timelineDot, { backgroundColor: theme.success }]} />
+                    <View style={[styles.timelineDot, {
+                      backgroundColor: i === 0 ? theme.colors.primary : theme.colors.accent,
+                    }]} />
+                    <View style={[styles.timelineLineVertical, {
+                      backgroundColor: seg.transportType === 'bus' ? theme.colors.bus : theme.colors.taxi,
+                    }]} />
                   </View>
-                  <Text style={[styles.segmentStopName, { color: theme.text }]}>
-                    {seg.toStop.name}
-                  </Text>
+                  <View style={styles.segmentInfo}>
+                    <Text variant="titleSmall">{seg.fromStop.name}</Text>
+                    <View style={styles.segmentMeta}>
+                      <Chip
+                        compact
+                        mode="flat"
+                        icon={seg.transportType === 'bus' ? 'bus' : 'taxi'}
+                        textStyle={{ fontSize: 10, color: seg.transportType === 'bus' ? theme.colors.bus : theme.colors.taxi }}
+                        style={{ backgroundColor: seg.transportType === 'bus' ? theme.colors.busLight : theme.colors.taxiLight }}
+                      >
+                        {seg.transportType === 'bus' ? 'Bus' : 'Taxi'}
+                      </Chip>
+                      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                        ~{seg.estimatedTime} min
+                      </Text>
+                    </View>
+                    {seg.isPassingBy && (
+                      <Chip
+                        compact
+                        mode="flat"
+                        icon="hand-wave-outline"
+                        textStyle={{ fontSize: 10, color: theme.colors.accent }}
+                        style={[styles.passingByChip, { backgroundColor: theme.colors.accentLight }]}
+                      >
+                        Flag down a passing taxi
+                      </Chip>
+                    )}
+                  </View>
                 </View>
-              )}
-            </View>
-          ))}
-        </View>
+
+                {/* To stop (only for last segment) */}
+                {i === route.segments.length - 1 && (
+                  <View style={styles.timelineRow}>
+                    <View style={styles.timelineDotContainer}>
+                      <View style={[styles.timelineDot, { backgroundColor: theme.colors.success }]} />
+                    </View>
+                    <Text variant="titleSmall">{seg.toStop.name}</Text>
+                  </View>
+                )}
+              </View>
+            ))}
+          </Card.Content>
+        </>
       )}
 
       {/* Expand indicator */}
       <View style={styles.expandIndicator}>
-        <Ionicons
-          name={expanded ? 'chevron-up' : 'chevron-down'}
+        <Icon
+          source={expanded ? 'chevron-up' : 'chevron-down'}
           size={16}
-          color={theme.textSecondary}
+          color={theme.colors.onSurfaceVariant}
         />
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     overflow: 'hidden',
   },
   cardHeader: {
+    gap: 8,
+  },
+  headerTop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: Spacing.three,
     gap: 12,
   },
   routeNumber: {
     width: 32,
     height: 32,
-    borderRadius: BorderRadius.sm,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  routeNumberText: {
-    fontSize: 14,
-    fontWeight: '700',
   },
   headerInfo: {
     flex: 1,
@@ -211,34 +219,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  routeTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    flex: 1,
-    marginRight: 8,
+  saveButton: {
+    margin: -8,
   },
   badges: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
   },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: BorderRadius.full,
-    gap: 4,
-  },
-  badgeText: {
+  chipText: {
     fontSize: 11,
-    fontWeight: '600',
   },
   quickOverview: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.three,
-    paddingBottom: 4,
+    paddingTop: 4,
   },
   stopDot: {
     width: 10,
@@ -257,10 +252,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   details: {
-    borderTopWidth: 1,
-    paddingTop: Spacing.three,
-    paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.two,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
   segmentDetail: {
     gap: 0,
@@ -293,43 +286,14 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     gap: 4,
   },
-  segmentStopName: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
   segmentMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  transportBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
-    gap: 3,
-  },
-  transportText: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  segmentMetaText: {
-    fontSize: 12,
-  },
-  passingByNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
-    gap: 4,
-    marginTop: 4,
+  passingByChip: {
     alignSelf: 'flex-start',
-  },
-  passingByNoteText: {
-    fontSize: 11,
-    fontWeight: '500',
+    marginTop: 4,
   },
   expandIndicator: {
     alignItems: 'center',

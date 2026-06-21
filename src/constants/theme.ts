@@ -5,11 +5,16 @@
  *   Primary blue = trust/reliability for transit
  *   Amber accent = Ethiopian gold
  *   Transport-specific colors for bus vs taxi
+ *
+ * Builds a custom MD3 theme for React Native Paper v5.
  */
 
-import '@/global.css';
-
 import { Platform } from 'react-native';
+import {
+  MD3LightTheme,
+  MD3DarkTheme,
+  MD3Theme,
+} from 'react-native-paper';
 
 export const Colors = {
   light: {
@@ -66,44 +71,82 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    sans: 'system-ui',
-    serif: 'ui-serif',
-    rounded: 'ui-rounded',
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+/** Custom colors added to the Paper theme for transport-specific styling */
+export type AppCustomColors = {
+  bus: string;
+  busLight: string;
+  taxi: string;
+  taxiLight: string;
+  accent: string;
+  accentLight: string;
+  success: string;
+  successLight: string;
+  textSecondary: string;
+  card: string;
+  border: string;
+  primaryLight: string;
+  gradient1: string;
+  gradient2: string;
+};
 
-export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
-} as const;
+export type AppTheme = MD3Theme & { colors: MD3Theme['colors'] & AppCustomColors };
 
-export const BorderRadius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  full: 999,
-} as const;
+export function getPaperTheme(scheme: 'light' | 'dark'): AppTheme {
+  const palette = Colors[scheme];
+  const baseTheme = scheme === 'dark' ? MD3DarkTheme : MD3LightTheme;
+
+  return {
+    ...baseTheme,
+    colors: {
+      ...baseTheme.colors,
+      primary: palette.primary,
+      onPrimary: '#FFFFFF',
+      primaryContainer: palette.primaryLight,
+      onPrimaryContainer: palette.primary,
+      secondary: palette.accent,
+      onSecondary: '#FFFFFF',
+      secondaryContainer: palette.accentLight,
+      onSecondaryContainer: palette.accent,
+      tertiary: palette.success,
+      onTertiary: '#FFFFFF',
+      tertiaryContainer: palette.successLight,
+      onTertiaryContainer: palette.success,
+      error: palette.error,
+      background: palette.background,
+      onBackground: palette.text,
+      surface: palette.card,
+      onSurface: palette.text,
+      surfaceVariant: palette.backgroundElement,
+      onSurfaceVariant: palette.textSecondary,
+      outline: palette.border,
+      outlineVariant: palette.border,
+      elevation: {
+        ...baseTheme.colors.elevation,
+        level0: palette.background,
+        level1: palette.card,
+        level2: palette.backgroundElement,
+        level3: palette.backgroundSelected,
+        level4: palette.backgroundSelected,
+        level5: palette.backgroundSelected,
+      },
+      // Custom app colors
+      bus: palette.bus,
+      busLight: palette.busLight,
+      taxi: palette.taxi,
+      taxiLight: palette.taxiLight,
+      accent: palette.accent,
+      accentLight: palette.accentLight,
+      success: palette.success,
+      successLight: palette.successLight,
+      textSecondary: palette.textSecondary,
+      card: palette.card,
+      border: palette.border,
+      primaryLight: palette.primaryLight,
+      gradient1: palette.gradient1,
+      gradient2: palette.gradient2,
+    },
+  };
+}
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
