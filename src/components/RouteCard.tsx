@@ -1,22 +1,15 @@
-/**
- * RouteCard — Displays a route search result
- *
- * Shows a visual timeline of segments with transfer indicators,
- * time badges, and an expandable detail view using Paper components.
- */
-
+import { RouteResult } from '@/data/types';
+import { useAppTheme } from '@/hooks/use-theme';
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import {
   Card,
   Chip,
-  Text,
+  Divider,
   Icon,
   IconButton,
-  Divider,
+  Text,
 } from 'react-native-paper';
-import { RouteResult } from '@/data/types';
-import { useAppTheme } from '@/hooks/use-theme';
 
 interface RouteCardProps {
   route: RouteResult;
@@ -38,7 +31,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
       onPress={() => setExpanded(!expanded)}
       style={{ marginBottom: 12 }}
     >
-      {/* Header */}
       <Card.Content style={{ gap: 12, paddingTop: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
           <View style={{ width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryContainer }}>
@@ -87,10 +79,9 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
           </View>
         </View>
 
-        {/* Quick Overview (always visible timeline) */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 4 }}>
           {route.segments.map((seg, i) => (
-            <React.Fragment key={i}>
+            <View key={i} style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
               {i === 0 && (
                 <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.primary }} />
               )}
@@ -106,7 +97,7 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
               {i === route.segments.length - 1 && (
                 <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.success }} />
               )}
-            </React.Fragment>
+            </View>
           ))}
         </View>
       </Card.Content>

@@ -140,7 +140,7 @@ export default function RoutesScreen() {
                   const dest = getStopById(conn.toStopId);
                   if (!dest) return null;
                   return (
-                    <React.Fragment key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
+                    <View key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
                       {idx > 0 && <Divider />}
                       <List.Item
                         title={dest.name}
@@ -164,7 +164,7 @@ export default function RoutesScreen() {
                         )}
                         style={{ paddingVertical: 8 }}
                       />
-                    </React.Fragment>
+                    </View>
                   );
                 })}
               </List.Accordion>

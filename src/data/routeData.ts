@@ -9,8 +9,7 @@ export const STOPS: Stop[] = [
   { id: 'torhayloch', name: 'Torhayloch', type: 'both' },
   { id: 'jemmo', name: 'Jemmo', type: 'taxi' },
 
-  // ── Central / North ──
-  { id: '4kilo', name: '4 Kilo', type: 'taxi' },
+  { id: '4kilo', name: '4 Kilo (Arat Kilo)', type: 'both', note: 'Central hub for buses and taxis' },
   { id: '6kilo', name: '6 Kilo', type: 'taxi', isPassingBy: true, note: 'No dedicated station — flag down passing taxis' },
   { id: '5kilo', name: '5 Kilo', type: 'taxi', isPassingBy: true, note: 'No dedicated station — flag down passing taxis' },
   { id: 'shiromeda', name: 'Shiromeda', type: 'taxi' },
@@ -18,7 +17,6 @@ export const STOPS: Stop[] = [
   { id: 'stadium', name: 'Stadium', type: 'taxi' },
   { id: 'kasanchis', name: 'Kasanchis', type: 'taxi' },
 
-  // ── West / Southwest ──
   { id: 'lideta', name: 'Lideta', type: 'taxi' },
   { id: 'aser_tena', name: 'Aser Tena', type: 'taxi' },
   { id: 'kera', name: 'Kera', type: 'taxi' },
@@ -33,7 +31,6 @@ export const STOPS: Stop[] = [
   { id: 'korfe', name: 'Korfe', type: 'taxi' },
   { id: 'zenebe_work', name: 'Zenebe Work', type: 'taxi' },
 
-  // ── South ──
   { id: 'mekanissa', name: 'Mekanissa', type: 'taxi' },
   { id: 'garment', name: 'Garment', type: 'taxi' },
   { id: 'sarbet', name: 'Sarbet', type: 'taxi' },
@@ -42,15 +39,12 @@ export const STOPS: Stop[] = [
   { id: 'bulbula', name: 'Bulbula', type: 'taxi' },
   { id: 'hana_mariam', name: 'Hana Mariam', type: 'taxi' },
 
-  // ── East / Northeast ──
   { id: 'ayat', name: 'Ayat', type: 'taxi' },
   { id: 'semit', name: 'Semit', type: 'taxi' },
   { id: 'kotebe', name: 'Kotebe', type: 'taxi' },
   { id: 'cmc', name: 'CMC', type: 'taxi' },
   { id: 'gurd_shola', name: 'Gurd Shola', type: 'taxi' },
 
-  // ── Piassa Area ──
-  { id: 'arat_kilo', name: 'Arat Kilo', type: 'both', note: 'Also called Arat — bus terminal' },
   { id: 'atikilt_tera', name: 'Atikilt Tera', type: 'taxi' },
   { id: 'asko', name: 'Asko', type: 'taxi' },
   { id: 'paulos', name: 'Paulos', type: 'taxi' },
@@ -58,13 +52,11 @@ export const STOPS: Stop[] = [
   { id: 'mesfin', name: 'Mesfin', type: 'taxi' },
   { id: 'autobis_tera', name: 'Autobis Tera', type: 'bus' },
 
-  // ── Outskirts ──
   { id: 'sebeta', name: 'Sebeta', type: 'bus' },
   { id: 'noc', name: 'NOC', type: 'taxi' },
   { id: 'furi', name: 'Furi', type: 'taxi' },
   { id: 'bisrate_gabriel', name: 'Bisrate Gabriel', type: 'taxi', isPassingBy: true, note: 'When there is a taxi passing by' },
 
-  // ── Additional Stops ──
   { id: 'beka_abdo', name: 'Beka Abdo', type: 'taxi' },
   { id: 'arabsa', name: 'Arabsa', type: 'taxi' },
   { id: 'marco', name: 'Marco', type: 'taxi' },
@@ -72,11 +64,7 @@ export const STOPS: Stop[] = [
   { id: '22_mazoria', name: '22 (Mazoria)', type: 'taxi' },
 ];
 
-// ─── Route Connections ──────────────────────────────────────────────────────
-// Bidirectional connections with estimated times (minutes).
-
 export const CONNECTIONS: RouteConnection[] = [
-  // ── Mexico Hub Routes ──
   { fromStopId: 'mexico', toStopId: 'sarbet', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'mexico', toStopId: 'mekanissa', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'mexico', toStopId: 'garment', transportType: 'taxi', estimatedTime: 12 },
@@ -96,10 +84,10 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'mexico', toStopId: 'merkato', transportType: 'taxi', estimatedTime: 12 },
 
   // ── Mexico from Arat (Bus) ──
-  { fromStopId: 'arat_kilo', toStopId: 'mexico', transportType: 'bus', estimatedTime: 15 },
-  { fromStopId: 'arat_kilo', toStopId: '22_mazoria', transportType: 'bus', estimatedTime: 8 },
-  { fromStopId: 'arat_kilo', toStopId: 'megenagna', transportType: 'bus', estimatedTime: 15 },
-  { fromStopId: 'arat_kilo', toStopId: 'bole', transportType: 'bus', estimatedTime: 18 },
+  { fromStopId: '4kilo', toStopId: 'mexico', transportType: 'bus', estimatedTime: 15 },
+  { fromStopId: '4kilo', toStopId: '22_mazoria', transportType: 'bus', estimatedTime: 8 },
+  { fromStopId: '4kilo', toStopId: 'megenagna', transportType: 'bus', estimatedTime: 15 },
+  { fromStopId: '4kilo', toStopId: 'bole', transportType: 'bus', estimatedTime: 18 },
 
   // ── 4 Kilo Hub Routes ──
   { fromStopId: '4kilo', toStopId: '6kilo', transportType: 'taxi', estimatedTime: 5 },
@@ -181,7 +169,7 @@ export const CONNECTIONS: RouteConnection[] = [
   // ── Torhayloch Hub Routes ──
   { fromStopId: 'torhayloch', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'torhayloch', toStopId: 'lideta', transportType: 'taxi', estimatedTime: 12 },
-  { fromStopId: 'torhayloch', toStopId: 'arat_kilo', transportType: 'taxi', estimatedTime: 20 },
+  { fromStopId: 'torhayloch', toStopId: '4kilo', transportType: 'taxi', estimatedTime: 20 },
   { fromStopId: 'torhayloch', toStopId: 'merkato', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'torhayloch', toStopId: 'ayat', transportType: 'taxi', estimatedTime: 45 },
   { fromStopId: 'aser_tena', toStopId: 'torhayloch', transportType: 'taxi', estimatedTime: 10 },
@@ -230,29 +218,22 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: '22_mazoria', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 8 },
 ];
 
-// ─── Helper Functions ───────────────────────────────────────────────────────
-
-/** Get a stop by its ID */
 export function getStopById(id: string): Stop | undefined {
   return STOPS.find(s => s.id === id);
 }
 
-/** Get all stops sorted alphabetically */
 export function getAllStopsSorted(): Stop[] {
   return [...STOPS].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Get all connections from a specific stop */
 export function getConnectionsFrom(stopId: string): RouteConnection[] {
   return CONNECTIONS.filter(c => c.fromStopId === stopId);
 }
 
-/** Get all connections to a specific stop */
 export function getConnectionsTo(stopId: string): RouteConnection[] {
   return CONNECTIONS.filter(c => c.toStopId === stopId);
 }
 
-/** Get unique hub stop IDs (stops that have outgoing connections) */
 export function getHubStopIds(): string[] {
   const hubs = new Set<string>();
   for (const c of CONNECTIONS) {
