@@ -2,7 +2,7 @@
  * RouteCard — Displays a route search result
  *
  * Shows a visual timeline of segments with transfer indicators,
- * fare/time badges, and an expandable detail view.
+ * time badges, and an expandable detail view.
  */
 
 import React, { useState } from 'react';
@@ -63,10 +63,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
             <View style={[styles.badge, { backgroundColor: theme.primaryLight }]}>
               <Ionicons name="time-outline" size={12} color={theme.primary} />
               <Text style={[styles.badgeText, { color: theme.primary }]}>~{route.totalTime} min</Text>
-            </View>
-            <View style={[styles.badge, { backgroundColor: theme.successLight }]}>
-              <Ionicons name="cash-outline" size={12} color={theme.success} />
-              <Text style={[styles.badgeText, { color: theme.success }]}>{route.totalFare} ETB</Text>
             </View>
             {route.transferCount > 0 && (
               <View style={[styles.badge, { backgroundColor: theme.accentLight }]}>
@@ -141,7 +137,7 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
                       </Text>
                     </View>
                     <Text style={[styles.segmentMetaText, { color: theme.textSecondary }]}>
-                      {seg.estimatedFare} ETB · ~{seg.estimatedTime} min
+                      ~{seg.estimatedTime} min
                     </Text>
                   </View>
                   {seg.isPassingBy && (

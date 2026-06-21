@@ -30,9 +30,7 @@ export default function AppTabs() {
           <TabTrigger name="index" href="/" asChild>
             <TabButton icon="navigate">Home</TabButton>
           </TabTrigger>
-          <TabTrigger name="map" href="/map" asChild>
-            <TabButton icon="map">Map</TabButton>
-          </TabTrigger>
+
           <TabTrigger name="routes" href="/routes" asChild>
             <TabButton icon="git-branch">Routes</TabButton>
           </TabTrigger>

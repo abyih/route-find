@@ -7,7 +7,6 @@
  * Routes are ranked by:
  *   1. Fewest transfers
  *   2. Shortest estimated time
- *   3. Lowest fare
  */
 
 import { CONNECTIONS, getStopById } from './routeData';
@@ -127,11 +126,10 @@ export function findRoutes(
     }
   }
 
-  // Sort results: fewer transfers → less time → lower fare
+  // Sort results: fewer transfers → less time
   results.sort((a, b) => {
     if (a.transferCount !== b.transferCount) return a.transferCount - b.transferCount;
-    if (a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
-    return a.totalFare - b.totalFare;
+    return a.totalTime - b.totalTime;
   });
 
   // Deduplicate similar routes (same stops in same order)
@@ -148,7 +146,6 @@ export function findRoutes(
 
 function buildRouteResult(path: RouteConnection[]): RouteResult | null {
   const segments: RouteSegment[] = [];
-  let totalFare = 0;
   let totalTime = 0;
 
   for (const conn of path) {
@@ -161,12 +158,10 @@ function buildRouteResult(path: RouteConnection[]): RouteResult | null {
       fromStop,
       toStop,
       transportType: conn.transportType,
-      estimatedFare: conn.estimatedFare,
       estimatedTime: conn.estimatedTime,
       isPassingBy: conn.isPassingBy,
     });
 
-    totalFare += conn.estimatedFare;
     totalTime += conn.estimatedTime;
   }
 
@@ -177,47 +172,7 @@ function buildRouteResult(path: RouteConnection[]): RouteResult | null {
   return {
     id: `route-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     segments,
-    totalFare,
     totalTime,
     transferCount,
   };
-}
-
-/**
- * Get nearby stops to a given coordinate.
- * Uses simple Euclidean distance (sufficient for city-scale).
- */
-export function getNearbyStops(
-  latitude: number,
-  longitude: number,
-  maxDistanceKm: number = 2
-): Array<{ stop: import('./types').Stop; distanceKm: number }> {
-  const allStops = require('./routeData').STOPS as import('./types').Stop[];
-  const results: Array<{ stop: import('./types').Stop; distanceKm: number }> = [];
-
-  for (const stop of allStops) {
-    const distKm = haversineDistance(latitude, longitude, stop.latitude, stop.longitude);
-    if (distKm <= maxDistanceKm) {
-      results.push({ stop, distanceKm: Math.round(distKm * 100) / 100 });
-    }
-  }
-
-  results.sort((a, b) => a.distanceKm - b.distanceKm);
-  return results;
-}
-
-/** Haversine distance in kilometers */
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-function toRad(deg: number): number {
-  return deg * (Math.PI / 180);
 }

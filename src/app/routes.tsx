@@ -2,7 +2,7 @@
  * Routes Screen — Browse all transit routes from each hub
  *
  * Lists all major hubs as expandable cards. Tap a hub to see
- * all departing routes with destinations, transport type, and fares.
+ * all departing routes with destinations and transport type.
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
@@ -201,9 +201,6 @@ export default function RoutesScreen() {
                               {conn.transportType === 'bus' ? '🚌' : '🚕'}
                             </Text>
                           </View>
-                          <Text style={[styles.connectionFare, { color: theme.success }]}>
-                            {conn.estimatedFare} ETB
-                          </Text>
                           <Text style={[styles.connectionTime, { color: theme.textSecondary }]}>
                             ~{conn.estimatedTime}m
                           </Text>
@@ -355,12 +352,6 @@ const styles = StyleSheet.create({
   },
   transportTagText: {
     fontSize: 11,
-  },
-  connectionFare: {
-    fontSize: 12,
-    fontWeight: '600',
-    minWidth: 45,
-    textAlign: 'right',
   },
   connectionTime: {
     fontSize: 11,
