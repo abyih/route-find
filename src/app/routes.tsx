@@ -3,10 +3,11 @@
  *
  * Lists all major hubs as expandable accordions. Tap a hub to see
  * all departing routes with destinations and transport type.
+ * Optimized with FlatList virtualization for high performance.
  */
 
-import React, { useState, useMemo } from 'react';
-import { ScrollView, StatusBar, View } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { FlatList, StatusBar, View } from 'react-native';
 import {
   Card,
   Chip,
@@ -80,6 +81,57 @@ export default function RoutesScreen() {
     return 'swap-horizontal';
   };
 
+  const renderHubItem = useCallback(({ item: hub }: { item: HubData }) => {
+    return (
+      <Card style={{ marginBottom: 12 }} mode="outlined">
+        <List.Accordion
+          title={hub.stopName}
+          description={`${hub.connections.length} destination${hub.connections.length !== 1 ? 's' : ''}`}
+          expanded={expandedHub === hub.stopId}
+          onPress={() => setExpandedHub(prev => prev === hub.stopId ? null : hub.stopId)}
+          left={props => (
+            <View style={{ marginLeft: 8, justifyContent: 'center' }}>
+              <Icon source={getHubIcon(hub.stopType)} size={24} color={theme.colors.primary} />
+            </View>
+          )}
+          titleStyle={{ fontWeight: '700' }}
+        >
+          {hub.connections.map((conn, idx) => {
+            const dest = getStopById(conn.toStopId);
+            if (!dest) return null;
+            return (
+              <View key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
+                {idx > 0 && <Divider />}
+                <List.Item
+                  title={dest.name}
+                  titleStyle={{ fontSize: 14 }}
+                  left={() => (
+                    <View style={{ justifyContent: 'center', marginLeft: 16 }}>
+                      <Icon source="arrow-right" size={16} color={theme.colors.onSurfaceVariant} />
+                    </View>
+                  )}
+                  right={() => (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Chip compact mode="outlined">
+                        {conn.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
+                      </Chip>
+                      {conn.isPassingBy && (
+                        <Chip compact mode="flat">
+                          🤚 Flag down
+                        </Chip>
+                      )}
+                    </View>
+                  )}
+                  style={{ paddingVertical: 8 }}
+                />
+              </View>
+            );
+          })}
+        </List.Accordion>
+      </Card>
+    );
+  }, [expandedHub, theme]);
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="dark-content" />
@@ -114,75 +166,29 @@ export default function RoutesScreen() {
         </View>
       </SafeAreaView>
 
-      {/* Hub List */}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, gap: 12 }}
+      {/* Hub List using FlatList for virtualization and optimization */}
+      <FlatList
+        data={filteredHubs}
+        keyExtractor={item => item.stopId}
+        renderItem={renderHubItem}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-      >
-        <List.Section>
-          {filteredHubs.map(hub => (
-            <Card key={hub.stopId} style={{ marginBottom: 12 }} mode="outlined">
-              <List.Accordion
-                title={hub.stopName}
-                description={`${hub.connections.length} destination${hub.connections.length !== 1 ? 's' : ''}`}
-                expanded={expandedHub === hub.stopId}
-                onPress={() => setExpandedHub(prev => prev === hub.stopId ? null : hub.stopId)}
-                left={props => (
-                  <View style={{ marginLeft: 8, justifyContent: 'center' }}>
-                    <Icon source={getHubIcon(hub.stopType)} size={24} color={theme.colors.primary} />
-                  </View>
-                )}
-                titleStyle={{ fontWeight: '700' }}
-              >
-                {hub.connections.map((conn, idx) => {
-                  const dest = getStopById(conn.toStopId);
-                  if (!dest) return null;
-                  return (
-                    <View key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
-                      {idx > 0 && <Divider />}
-                      <List.Item
-                        title={dest.name}
-                        titleStyle={{ fontSize: 14 }}
-                        left={() => (
-                          <View style={{ justifyContent: 'center', marginLeft: 16 }}>
-                            <Icon source="arrow-right" size={16} color={theme.colors.onSurfaceVariant} />
-                          </View>
-                        )}
-                        right={() => (
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                            <Chip compact mode="outlined">
-                              {conn.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
-                            </Chip>
-                            {conn.isPassingBy && (
-                              <Chip compact mode="flat">
-                                🤚 Flag down
-                              </Chip>
-                            )}
-                          </View>
-                        )}
-                        style={{ paddingVertical: 8 }}
-                      />
-                    </View>
-                  );
-                })}
-              </List.Accordion>
-            </Card>
-          ))}
-        </List.Section>
-
-        {filteredHubs.length === 0 && (
-          <View style={{ alignItems: 'center', paddingVertical: 48, gap: 12 }}>
-            <Icon source="magnify" size={48} color={theme.colors.onSurfaceVariant} />
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-              No hubs match "{search}"
-            </Text>
-          </View>
-        )}
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        removeClippedSubviews={true}
+        ListEmptyComponent={
+          filteredHubs.length === 0 ? (
+            <View style={{ alignItems: 'center', paddingVertical: 48, gap: 12 }}>
+              <Icon source="magnify" size={48} color={theme.colors.onSurfaceVariant} />
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                No hubs match "{search}"
+              </Text>
+            </View>
+          ) : null
+        }
+      />
     </View>
   );
 }

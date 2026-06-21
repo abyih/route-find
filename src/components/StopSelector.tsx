@@ -185,9 +185,10 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               style={{ flex: 1 }}
               keyboardShouldPersistTaps="handled"
               ItemSeparatorComponent={Divider}
-              initialNumToRender={15}
-              maxToRenderPerBatch={15}
-              windowSize={5}
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={3}
+              removeClippedSubviews={true}
               ListEmptyComponent={
                 <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
                   <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />

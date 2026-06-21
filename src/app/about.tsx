@@ -1,10 +1,3 @@
-/**
- * About Screen — App details, instructions, and offline status
- *
- * Built using React Native Paper v5 components with forced light theme layout.
- */
-
-import React from 'react';
 import { ScrollView, StatusBar, View } from 'react-native';
 import {
   Card,
@@ -24,7 +17,6 @@ export default function AboutScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16 }}>
-        {/* Header */}
         <View style={{ paddingTop: 16, gap: 4, paddingBottom: 16 }}>
           <Text variant="headlineSmall" style={{ fontWeight: '800' }}>About</Text>
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
@@ -38,7 +30,6 @@ export default function AboutScreen() {
         contentContainerStyle={{ padding: 16, gap: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Main App Card */}
         <Card mode="outlined">
           <Card.Content style={{ gap: 12, alignItems: 'center', paddingVertical: 24 }}>
             <View style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryContainer }}>
@@ -49,12 +40,11 @@ export default function AboutScreen() {
               <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>Version 1.0.0</Text>
             </View>
             <Text variant="bodyMedium" style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant, lineHeight: 20 }}>
-              A lightweight, offline-first helper for navigating public transit (minibus taxis and buses) across Addis Ababa, Ethiopia.
+              A lightweight, offline-first helper for navigating Addis Ababa's taxi routes
             </Text>
           </Card.Content>
         </Card>
 
-        {/* How to Use */}
         <Text variant="titleMedium" style={{ fontWeight: '700' }}>How to Use</Text>
         <Card mode="outlined">
           <Card.Content style={{ padding: 0 }}>
@@ -78,26 +68,25 @@ export default function AboutScreen() {
           </Card.Content>
         </Card>
 
-        {/* Features */}
-        <Text variant="titleMedium" style={{ fontWeight: '700' }}>App Features</Text>
+        <Text variant="titleMedium" style={{ fontWeight: '700' }}>Project Team</Text>
         <Card mode="outlined">
           <Card.Content style={{ padding: 0 }}>
             <List.Item
-              title="100% Offline-First"
-              description="Does not require active internet or map data to route you."
-              left={() => <List.Icon icon="wifi-off" />}
+              title="[Student Name 1]"
+              description="ID: [Student ID 1]"
+              left={() => <List.Icon icon="account" />}
             />
             <Divider />
             <List.Item
-              title="Multi-Modal Transit"
-              description="Routes across both minibus taxis and Anbessa/Sheger buses."
-              left={() => <List.Icon icon="bus-multiple" />}
+              title="[Student Name 2]"
+              description="ID: [Student ID 2]"
+              left={() => <List.Icon icon="account" />}
             />
             <Divider />
             <List.Item
-              title="Addis Ababa Coverage"
-              description="Maps major stations (Mexico, Megenagna, Bole, Piassa, Torhayloch, 4 Kilo, etc.)."
-              left={() => <List.Icon icon="map-marker-radius" />}
+              title="[Student Name 3]"
+              description="ID: [Student ID 3]"
+              left={() => <List.Icon icon="account" />}
             />
           </Card.Content>
         </Card>
