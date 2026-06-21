@@ -45,48 +45,42 @@ export default function AboutScreen() {
           </Card.Content>
         </Card>
 
-        <Text variant="titleMedium" style={{ fontWeight: '700' }}>How to Use</Text>
+        <Text variant="titleMedium" style={{ fontWeight: '700' }}>Group Members</Text>
         <Card mode="outlined">
           <Card.Content style={{ padding: 0 }}>
             <List.Item
-              title="Search Routes"
-              description="Select your origin and destination stops on the Home screen to see the optimal paths."
-              left={() => <List.Icon icon="magnify" color={theme.colors.primary} />}
+              title="Abiy Hailu Miruts"
+              description="ID: UGR/2461/16"
             />
             <Divider />
             <List.Item
-              title="Explore Hubs"
-              description="Browse connections departing from major terminal stations on the Routes screen."
-              left={() => <List.Icon icon="source-branch" color={theme.colors.primary} />}
+              title="Eden Gosaye"
+              description="ID: UGR/8305/16"
             />
             <Divider />
             <List.Item
-              title="Quick Access"
-              description="Bookmark your frequent route searches on the Home screen to access them quickly on the Saved tab."
-              left={() => <List.Icon icon="bookmark" color={theme.colors.primary} />}
-            />
-          </Card.Content>
-        </Card>
-
-        <Text variant="titleMedium" style={{ fontWeight: '700' }}>Project Team</Text>
-        <Card mode="outlined">
-          <Card.Content style={{ padding: 0 }}>
-            <List.Item
-              title="[Student Name 1]"
-              description="ID: [Student ID 1]"
-              left={() => <List.Icon icon="account" />}
+              title="Ehsan Mujib"
+              description="ID: UGR/9110/16"
             />
             <Divider />
             <List.Item
-              title="[Student Name 2]"
-              description="ID: [Student ID 2]"
-              left={() => <List.Icon icon="account" />}
+              title="Ephrata Belachew"
+              description="ID: UGR/1633/16"
             />
             <Divider />
             <List.Item
-              title="[Student Name 3]"
-              description="ID: [Student ID 3]"
-              left={() => <List.Icon icon="account" />}
+              title="Ertiban Debebe"
+              description="ID: UGR/3920/16"
+            />
+            <Divider />
+            <List.Item
+              title="Meklit Mesfin"
+              description="ID: UGR/7509/16"
+            />
+            <Divider />
+            <List.Item
+              title="Marsilas Addisu"
+              description="ID: UGR/8249/16"
             />
           </Card.Content>
         </Card>

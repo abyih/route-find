@@ -4,7 +4,7 @@
  * Features:
  * - Fuzzy text search via Paper Searchbar
  * - Native Modal bottom sheet presentation
- * - Performance optimized FlatList for large datasets
+ * - Performance optimized FlatList with React.memo list item caching
  * - Shows stop type (bus/taxi) with Paper Chips
  */
 
@@ -28,6 +28,7 @@ import {
 import { getAllStopsSorted } from '@/data/routeData';
 import { Stop } from '@/data/types';
 import { useAppTheme } from '@/hooks/use-theme';
+import type { AppTheme } from '@/constants/theme';
 
 interface StopSelectorProps {
   label: string;
@@ -37,36 +38,20 @@ interface StopSelectorProps {
   icon: string;
 }
 
-export function StopSelector({ label, placeholder, selectedStop, onSelect, icon }: StopSelectorProps) {
-  const theme = useAppTheme();
-  const [visible, setVisible] = useState(false);
-  const [search, setSearch] = useState('');
-
-  const allStops = useMemo(() => getAllStopsSorted(), []);
-
-  const filtered = useMemo(() => {
-    if (!search.trim()) return allStops;
-    const q = search.toLowerCase();
-    return allStops.filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      s.id.toLowerCase().includes(q)
-    );
-  }, [search, allStops]);
-
-  const handleSelect = useCallback((stop: Stop) => {
-    onSelect(stop);
-    setVisible(false);
-    setSearch('');
-  }, [onSelect]);
-
-  const getStopIcon = (type: string) => {
-    if (type === 'bus') return 'bus';
-    if (type === 'taxi') return 'taxi';
-    return 'swap-horizontal';
-  };
-
-  const renderStop = useCallback(({ item }: { item: Stop }) => (
-    <TouchableRipple onPress={() => handleSelect(item)} style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
+// Memoized StopItem component to prevent unnecessary list rendering during search
+const StopItem = React.memo(({
+  item,
+  theme,
+  onSelect,
+  getStopIcon,
+}: {
+  item: Stop;
+  theme: AppTheme;
+  onSelect: (stop: Stop) => void;
+  getStopIcon: (type: string) => string;
+}) => {
+  return (
+    <TouchableRipple onPress={() => onSelect(item)} style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
           <View style={{ width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryContainer }}>
@@ -90,7 +75,45 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
         )}
       </View>
     </TouchableRipple>
-  ), [theme, handleSelect]);
+  );
+});
+
+export function StopSelector({ label, placeholder, selectedStop, onSelect, icon }: StopSelectorProps) {
+  const theme = useAppTheme();
+  const [visible, setVisible] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const allStops = useMemo(() => getAllStopsSorted(), []);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return allStops;
+    const q = search.toLowerCase();
+    return allStops.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q)
+    );
+  }, [search, allStops]);
+
+  const handleSelect = useCallback((stop: Stop) => {
+    onSelect(stop);
+    setVisible(false);
+    setSearch('');
+  }, [onSelect]);
+
+  const getStopIcon = useCallback((type: string) => {
+    if (type === 'bus') return 'bus';
+    if (type === 'taxi') return 'taxi';
+    return 'swap-horizontal';
+  }, []);
+
+  const renderStop = useCallback(({ item }: { item: Stop }) => (
+    <StopItem
+      item={item}
+      theme={theme}
+      onSelect={handleSelect}
+      getStopIcon={getStopIcon}
+    />
+  ), [theme, handleSelect, getStopIcon]);
 
   return (
     <>
@@ -177,7 +200,7 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               autoFocus
             />
 
-            {/* Stop List - Optimized for rendering large lists smoothly */}
+            {/* Stop List - Optimized for rendering large lists smoothly with virtualization */}
             <FlatList
               data={filtered}
               keyExtractor={item => item.id}

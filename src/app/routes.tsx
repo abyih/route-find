@@ -96,7 +96,7 @@ export default function RoutesScreen() {
           )}
           titleStyle={{ fontWeight: '700' }}
         >
-          {hub.connections.map((conn, idx) => {
+          {expandedHub === hub.stopId && hub.connections.map((conn, idx) => {
             const dest = getStopById(conn.toStopId);
             if (!dest) return null;
             return (
