@@ -155,9 +155,6 @@ export default function RoutesScreen() {
                             <Chip compact mode="outlined">
                               {conn.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
                             </Chip>
-                            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                              ~{conn.estimatedTime}m
-                            </Text>
                             {conn.isPassingBy && (
                               <Chip compact mode="flat">
                                 🤚 Flag down

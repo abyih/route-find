@@ -3,9 +3,9 @@
  *
  * Features:
  * - Fuzzy text search via Paper Searchbar
- * - Portal-based modal presentation
+ * - Native Modal bottom sheet presentation
+ * - Performance optimized FlatList for large datasets
  * - Shows stop type (bus/taxi) with Paper Chips
- * - Notes for passing-by stops
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
@@ -14,10 +14,9 @@ import {
   FlatList,
   Platform,
   KeyboardAvoidingView,
+  Modal,
 } from 'react-native';
 import {
-  Portal,
-  Modal,
   Searchbar,
   Text,
   TouchableRipple,
@@ -126,25 +125,36 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
         </View>
       </TouchableRipple>
 
-      <Portal>
-        <Modal
-          visible={visible}
-          onDismiss={() => { setVisible(false); setSearch(''); }}
-          contentContainerStyle={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            maxHeight: '85%',
-            minHeight: '60%',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: theme.colors.surface,
-          }}
+      <Modal
+        visible={visible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => { setVisible(false); setSearch(''); }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={{ flex: 1 }}
+          {/* Background overlay tap to dismiss */}
+          <TouchableRipple
+            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            onPress={() => { setVisible(false); setSearch(''); }}
+            rippleColor="transparent"
+          >
+            <View style={{ flex: 1 }} />
+          </TouchableRipple>
+
+          {/* Modal Content container with bounded max height to prevent overflow */}
+          <View
+            style={{
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              maxHeight: '85%',
+              minHeight: '60%',
+              backgroundColor: theme.colors.surface,
+              width: '100%',
+              overflow: 'hidden',
+            }}
           >
             {/* Header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 8 }}>
@@ -167,7 +177,7 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               autoFocus
             />
 
-            {/* Stop List */}
+            {/* Stop List - Optimized for rendering large lists smoothly */}
             <FlatList
               data={filtered}
               keyExtractor={item => item.id}
@@ -175,6 +185,9 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               style={{ flex: 1 }}
               keyboardShouldPersistTaps="handled"
               ItemSeparatorComponent={Divider}
+              initialNumToRender={15}
+              maxToRenderPerBatch={15}
+              windowSize={5}
               ListEmptyComponent={
                 <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
                   <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />
@@ -184,9 +197,9 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
                 </View>
               }
             />
-          </KeyboardAvoidingView>
-        </Modal>
-      </Portal>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </>
   );
 }

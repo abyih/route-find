@@ -64,14 +64,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
               )}
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-              <Chip
-                compact
-                mode="flat"
-                icon="clock-outline"
-                style={{ backgroundColor: theme.colors.primaryContainer }}
-              >
-                ~{route.totalTime} min
-              </Chip>
               {route.transferCount > 0 ? (
                 <Chip
                   compact
@@ -154,9 +146,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
                       >
                         {seg.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
                       </Chip>
-                      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                        ~{seg.estimatedTime} min
-                      </Text>
                     </View>
                     {seg.isPassingBy && (
                       <Chip
