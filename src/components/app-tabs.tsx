@@ -8,11 +8,13 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { Icon } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@/hooks/use-theme';
 
 export default function AppTabs() {
   const theme = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -25,7 +27,12 @@ export default function AppTabs() {
           borderTopColor: theme.colors.outline,
           borderTopWidth: 1,
           paddingTop: 4,
-          height: Platform.select({ ios: 88, android: 64 }),
+          height: Platform.select({
+            ios: 60 + insets.bottom,
+            android: 60 + insets.bottom,
+            default: 64,
+          }),
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
         },
         tabBarLabelStyle: {
           fontSize: 11,

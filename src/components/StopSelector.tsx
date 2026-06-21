@@ -15,6 +15,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   Modal,
+  TextInput,
 } from 'react-native';
 import {
   Searchbar,
@@ -68,11 +69,6 @@ const StopItem = React.memo(({
             )}
           </View>
         </View>
-        {item.isPassingBy && (
-          <Chip compact mode="outlined">
-            Flag down
-          </Chip>
-        )}
       </View>
     </TouchableRipple>
   );
@@ -154,10 +150,7 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
         transparent
         onRequestClose={() => { setVisible(false); setSearch(''); }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           {/* Background overlay tap to dismiss */}
           <TouchableRipple
             style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
@@ -168,7 +161,8 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
           </TouchableRipple>
 
           {/* Modal Content container with bounded max height to prevent overflow */}
-          <View
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
@@ -179,6 +173,15 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               overflow: 'hidden',
             }}
           >
+            {/* Dummy focusable input to prevent Android from automatically focusing Searchbar on first mount */}
+            {Platform.OS === 'android' && (
+              <TextInput
+                style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+                showSoftInputOnFocus={false}
+                accessible={false}
+                importantForAccessibility="no"
+              />
+            )}
             {/* Header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 8 }}>
               <Text variant="titleMedium">{label}</Text>
@@ -191,13 +194,11 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
 
             <Divider />
 
-            {/* Search */}
             <Searchbar
               placeholder="Search stops..."
               value={search}
               onChangeText={setSearch}
               style={{ marginHorizontal: 16, marginVertical: 8, elevation: 0 }}
-              autoFocus
             />
 
             {/* Stop List - Optimized for rendering large lists smoothly with virtualization */}
@@ -221,8 +222,8 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
                 </View>
               }
             />
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
     </>
   );

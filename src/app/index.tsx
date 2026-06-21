@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, ScrollView, StatusBar, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from 'react-native';
 import {
   Button,
   Card,
@@ -109,7 +109,6 @@ export default function HomeScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Hero Header */}
         <LinearGradient
           colors={[theme.colors.gradient1, theme.colors.gradient2]}
           start={{ x: 0, y: 0 }}
@@ -126,18 +125,20 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <Icon source="compass" size={28} color="#FFFFFF" />
               <View>
-                <Text variant="headlineSmall" style={{ color: '#FFFFFF' }}>Route Finder</Text>
-                <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.8)' }}>Addis Ababa Transit</Text>
+                <Text variant="headlineSmall" style={{ color: '#FFFFFF' }}>Route Addis</Text>
+                <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.8)' }}>Addis Ababa Taxi Routes</Text>
               </View>
             </View>
             <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              Find the best way to get around the city using minibus taxis and buses
+              Find the best way to get around the city using taxis and buses
             </Text>
           </SafeAreaView>
         </LinearGradient>
 
-        {/* Search Section */}
-        <View style={{ padding: 16, marginTop: -24, gap: 12 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ padding: 16, marginTop: -24, gap: 12 }}
+        >
           <StopSelector
             label="From"
             placeholder="Where are you?"
@@ -169,9 +170,8 @@ export default function HomeScreen() {
           >
             Find Routes
           </Button>
-        </View>
+        </KeyboardAvoidingView>
 
-        {/* Results */}
         {hasSearched && !searching && (
           <View style={{ padding: 16, gap: 12 }}>
             {results.length > 0 ? (
@@ -209,7 +209,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Popular Routes */}
         {!hasSearched && (
           <View style={{ padding: 16, gap: 12 }}>
             <Text variant="titleMedium">Popular Routes</Text>

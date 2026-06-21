@@ -138,16 +138,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
                         {seg.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
                       </Chip>
                     </View>
-                    {seg.isPassingBy && (
-                      <Chip
-                        compact
-                        mode="flat"
-                        icon="hand-wave-outline"
-                        style={{ alignSelf: 'flex-start', marginTop: 4 }}
-                      >
-                        Flag down passing taxi
-                      </Chip>
-                    )}
                   </View>
                 </View>
 
