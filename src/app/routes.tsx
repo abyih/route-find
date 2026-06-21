@@ -1,11 +1,3 @@
-/**
- * Routes Screen — Browse all transit routes from each hub
- *
- * Lists all major hubs as expandable accordions. Tap a hub to see
- * all departing routes with destinations and transport type.
- * Optimized with FlatList virtualization for high performance.
- */
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { FlatList, StatusBar, View } from 'react-native';
 import {
@@ -35,7 +27,6 @@ export default function RoutesScreen() {
   const [search, setSearch] = useState('');
   const [expandedHub, setExpandedHub] = useState<string | null>(null);
 
-  // Build hub data: stops that have outgoing connections
   const hubs: HubData[] = useMemo(() => {
     const hubMap = new Map<string, RouteConnection[]>();
 
@@ -131,7 +122,6 @@ export default function RoutesScreen() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, gap: 12 }}>
-        {/* Header */}
         <View style={{ paddingTop: 16, gap: 4 }}>
           <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Routes</Text>
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
@@ -139,7 +129,6 @@ export default function RoutesScreen() {
           </Text>
         </View>
 
-        {/* Search */}
         <Searchbar
           placeholder="Search hubs or destinations..."
           value={search}
@@ -147,7 +136,6 @@ export default function RoutesScreen() {
           elevation={0}
         />
 
-        {/* Stats */}
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
           <Chip compact mode="flat" icon="map-marker">
             {STOPS.length} stops
@@ -161,7 +149,6 @@ export default function RoutesScreen() {
         </View>
       </SafeAreaView>
 
-      {/* Hub List using FlatList for virtualization and optimization */}
       <FlatList
         data={filteredHubs}
         keyExtractor={item => item.stopId}

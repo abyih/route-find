@@ -1,10 +1,6 @@
-/**
- * Hook for managing saved/favorite routes with AsyncStorage persistence.
- */
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SavedRoute } from '@/data/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const STORAGE_KEY = '@saved_routes';
 
@@ -32,13 +28,11 @@ export function SavedRoutesProvider({ children }: { children: React.ReactNode })
         setSavedRoutes([]);
       }
     } catch {
-      // Silently fail — user won't lose functionality
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // Load saved routes from storage on mount
   useEffect(() => {
     loadSavedRoutes();
   }, [loadSavedRoutes]);
@@ -47,11 +41,10 @@ export function SavedRoutesProvider({ children }: { children: React.ReactNode })
     try {
       setSavedRoutes(prev => {
         const updated = [route, ...prev.filter(r => r.id !== route.id)];
-        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch(() => {});
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch(() => { });
         return updated;
       });
     } catch {
-      // Silently fail
     }
   }, []);
 
@@ -59,11 +52,10 @@ export function SavedRoutesProvider({ children }: { children: React.ReactNode })
     try {
       setSavedRoutes(prev => {
         const updated = prev.filter(r => r.id !== routeId);
-        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch(() => {});
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch(() => { });
         return updated;
       });
     } catch {
-      // Silently fail
     }
   }, []);
 

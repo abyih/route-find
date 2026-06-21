@@ -34,7 +34,6 @@ export const STOPS: Stop[] = [
   { id: 'mekanissa', name: 'Mekanissa', type: 'taxi' },
   { id: 'garment', name: 'Garment', type: 'taxi' },
   { id: 'sarbet', name: 'Sarbet', type: 'taxi' },
-  { id: 'sefera', name: 'Sefera', type: 'taxi' },
   { id: 'bulbula', name: 'Bulbula', type: 'taxi' },
   { id: 'hana_mariam', name: 'Hana Mariam', type: 'taxi' },
 
@@ -58,7 +57,6 @@ export const STOPS: Stop[] = [
 
   { id: 'yeka_abado', name: 'Yeka Abado', type: 'taxi' },
   { id: 'arabsa', name: 'Arabsa', type: 'taxi' },
-  { id: 'au', name: 'AU (African Union)', type: 'taxi' },
   { id: '22_mazoria', name: '22 (Mazoria)', type: 'taxi' },
 ];
 
@@ -67,7 +65,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'mexico', toStopId: 'mekanissa', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'mexico', toStopId: 'garment', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'mexico', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 15 },
-  { fromStopId: 'mexico', toStopId: 'sefera', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'mexico', toStopId: 'tulu_dimtu', transportType: 'bus', estimatedTime: 35 },
   { fromStopId: 'mexico', toStopId: 'lideta', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'mexico', toStopId: 'tor_hayloch', transportType: 'taxi', estimatedTime: 15 },
@@ -81,20 +78,17 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'mexico', toStopId: 'kera', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'mexico', toStopId: 'merkato', transportType: 'taxi', estimatedTime: 12 },
 
-  // ── Mexico from Arat (Bus) ──
   { fromStopId: '4kilo', toStopId: 'mexico', transportType: 'bus', estimatedTime: 15 },
   { fromStopId: '4kilo', toStopId: '22_mazoria', transportType: 'bus', estimatedTime: 8 },
   { fromStopId: '4kilo', toStopId: 'megenagna', transportType: 'bus', estimatedTime: 15 },
   { fromStopId: '4kilo', toStopId: 'bole', transportType: 'bus', estimatedTime: 18 },
 
-  // ── 4 Kilo Hub Routes ──
   { fromStopId: '4kilo', toStopId: '6kilo', transportType: 'taxi', estimatedTime: 5 },
   { fromStopId: '4kilo', toStopId: 'shiromeda', transportType: 'taxi', estimatedTime: 10 },
   { fromStopId: '4kilo', toStopId: 'ferensay', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: '4kilo', toStopId: 'stadium', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: '4kilo', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 8 },
 
-  // ── 6 Kilo / 5 Kilo (Passing-by) ──
   { fromStopId: '6kilo', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 12, isPassingBy: true },
   { fromStopId: '6kilo', toStopId: 'stadium', transportType: 'taxi', estimatedTime: 8, isPassingBy: true },
   { fromStopId: '6kilo', toStopId: 'shiromeda', transportType: 'taxi', estimatedTime: 8, isPassingBy: true },
@@ -104,7 +98,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: '5kilo', toStopId: 'shiromeda', transportType: 'taxi', estimatedTime: 8, isPassingBy: true },
   { fromStopId: '5kilo', toStopId: 'ferensay', transportType: 'taxi', estimatedTime: 8, isPassingBy: true },
 
-  // ── Piassa Hub Routes ──
   { fromStopId: 'piassa', toStopId: 'kera', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'piassa', toStopId: 'bole', transportType: 'taxi', estimatedTime: 18 },
   { fromStopId: 'piassa', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 20 },
@@ -115,9 +108,7 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'asko', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'mesfin', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 5 },
 
-  // ── Jemmo Hub Routes ──
   { fromStopId: 'garment', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 8 },
-  { fromStopId: 'sefera', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'jemmo', toStopId: 'ayer_tena', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'jemmo', toStopId: 'saris', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'jemmo', toStopId: 'tulu_dimtu', transportType: 'taxi', estimatedTime: 25 },
@@ -128,7 +119,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'jemmo', toStopId: 'gofa', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'jemmo', toStopId: 'kera', transportType: 'taxi', estimatedTime: 10 },
 
-  // ── Jemmo → Lideta (Passing-by) ──
   { fromStopId: 'jemmo', toStopId: 'lideta', transportType: 'taxi', estimatedTime: 12, isPassingBy: true },
   { fromStopId: 'lideta', toStopId: 'autobis_tera', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'lideta', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 10 },
@@ -137,7 +127,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'lideta', toStopId: 'ayer_tena', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'lideta', toStopId: 'bethel', transportType: 'taxi', estimatedTime: 15 },
 
-  // ── Megenagna Hub Routes ──
   { fromStopId: 'megenagna', toStopId: 'bole', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'megenagna', toStopId: 'kasanchis', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'megenagna', toStopId: 'stadium', transportType: 'taxi', estimatedTime: 12 },
@@ -153,7 +142,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'kasanchis', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'kasanchis', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 8 },
 
-  // ── Bole Hub Routes ──
   { fromStopId: 'bole', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'bole', toStopId: 'ayat', transportType: 'taxi', estimatedTime: 25 },
   { fromStopId: 'bole', toStopId: 'semit', transportType: 'taxi', estimatedTime: 18 },
@@ -164,7 +152,6 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'bole', toStopId: 'saris_abo', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'bole', toStopId: 'bulbula', transportType: 'taxi', estimatedTime: 18 },
 
-  // ── Torhayloch Hub Routes ──
   { fromStopId: 'tor_hayloch', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'tor_hayloch', toStopId: 'lideta', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'tor_hayloch', toStopId: '4kilo', transportType: 'taxi', estimatedTime: 20 },
@@ -177,24 +164,20 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'kolfe', toStopId: 'tor_hayloch', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'zenebe_work', toStopId: 'tor_hayloch', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'tor_hayloch', toStopId: 'stadium', transportType: 'taxi', estimatedTime: 15 },
-  { fromStopId: 'tor_hayloch', toStopId: 'au', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'tor_hayloch', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 30 },
 
-  // ── Bisrate Gabriel (Passing-by) ──
   { fromStopId: 'bisrate_gabriel', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 10, isPassingBy: true },
   { fromStopId: 'bisrate_gabriel', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 8, isPassingBy: true },
   { fromStopId: 'bisrate_gabriel', toStopId: 'ayer_tena', transportType: 'taxi', estimatedTime: 10, isPassingBy: true },
   { fromStopId: 'bisrate_gabriel', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 15, isPassingBy: true },
   { fromStopId: 'bisrate_gabriel', toStopId: 'merkato', transportType: 'taxi', estimatedTime: 15, isPassingBy: true },
 
-  // ── Sebeta / NOC / Furi ──
   { fromStopId: 'sebeta', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 25 },
   { fromStopId: 'noc', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 20 },
   { fromStopId: 'furi', toStopId: 'jemmo', transportType: 'taxi', estimatedTime: 20 },
   { fromStopId: 'sebeta', toStopId: 'ayer_tena', transportType: 'taxi', estimatedTime: 30 },
   { fromStopId: 'furi', toStopId: 'ayer_tena', transportType: 'taxi', estimatedTime: 25 },
 
-  // ── Yeka Abado / Arabsa Area ──
   { fromStopId: 'yeka_abado', toStopId: 'ayat', transportType: 'taxi', estimatedTime: 15 },
   { fromStopId: 'arabsa', toStopId: 'ayat', transportType: 'taxi', estimatedTime: 10 },
   { fromStopId: 'yeka_abado', toStopId: 'cmc', transportType: 'taxi', estimatedTime: 10 },
@@ -202,12 +185,10 @@ export const CONNECTIONS: RouteConnection[] = [
   { fromStopId: 'yeka_abado', toStopId: 'gurd_shola', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'arabsa', toStopId: 'cmc', transportType: 'taxi', estimatedTime: 8 },
 
-  // ── Merkato connections ──
   { fromStopId: 'merkato', toStopId: 'piassa', transportType: 'taxi', estimatedTime: 8 },
   { fromStopId: 'merkato', toStopId: 'autobis_tera', transportType: 'taxi', estimatedTime: 5 },
   { fromStopId: 'merkato', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 12 },
 
-  // ── Additional cross-connections ──
   { fromStopId: 'saris', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 18 },
   { fromStopId: 'gofa', toStopId: 'mexico', transportType: 'taxi', estimatedTime: 12 },
   { fromStopId: 'gofa', toStopId: 'megenagna', transportType: 'taxi', estimatedTime: 22 },

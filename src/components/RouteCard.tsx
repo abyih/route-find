@@ -1,6 +1,6 @@
 import { RouteResult } from '@/data/types';
 import { useAppTheme } from '@/hooks/use-theme';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import {
   Card,
@@ -102,14 +102,12 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
         </View>
       </Card.Content>
 
-      {/* Expanded Details */}
       {expanded && (
         <>
           <Divider />
           <Card.Content style={{ paddingTop: 16, paddingBottom: 8 }}>
             {route.segments.map((seg, i) => (
               <View key={i}>
-                {/* From stop */}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 }}>
                   <View style={{ alignItems: 'center', width: 16 }}>
                     <View style={{
@@ -141,7 +139,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
                   </View>
                 </View>
 
-                {/* To stop (only for last segment) */}
                 {i === route.segments.length - 1 && (
                   <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, minHeight: 32 }}>
                     <View style={{ alignItems: 'center', width: 16 }}>
@@ -156,7 +153,6 @@ export function RouteCard({ route, index, onSave, isSaved }: RouteCardProps) {
         </>
       )}
 
-      {/* Expand indicator */}
       <View style={{ alignItems: 'center', paddingBottom: 8, paddingTop: 4 }}>
         <Icon
           source={expanded ? 'chevron-up' : 'chevron-down'}

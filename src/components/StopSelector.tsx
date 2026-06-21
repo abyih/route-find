@@ -1,13 +1,3 @@
-/**
- * StopSelector — Searchable dropdown for selecting transit stops
- *
- * Features:
- * - Fuzzy text search via Paper Searchbar
- * - Native Modal bottom sheet presentation
- * - Performance optimized FlatList with React.memo list item caching
- * - Shows stop type (bus/taxi) with Paper Chips
- */
-
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
@@ -39,7 +29,7 @@ interface StopSelectorProps {
   icon: string;
 }
 
-// Memoized StopItem component to prevent unnecessary list rendering during search
+
 const StopItem = React.memo(({
   item,
   theme,
@@ -151,7 +141,6 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
         onRequestClose={() => { setVisible(false); setSearch(''); }}
       >
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          {/* Background overlay tap to dismiss */}
           <TouchableRipple
             style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
             onPress={() => { setVisible(false); setSearch(''); }}
@@ -160,7 +149,6 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
             <View style={{ flex: 1 }} />
           </TouchableRipple>
 
-          {/* Modal Content container with bounded max height to prevent overflow */}
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{
@@ -173,7 +161,6 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               overflow: 'hidden',
             }}
           >
-            {/* Dummy focusable input to prevent Android from automatically focusing Searchbar on first mount */}
             {Platform.OS === 'android' && (
               <TextInput
                 style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
@@ -182,7 +169,6 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
                 importantForAccessibility="no"
               />
             )}
-            {/* Header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 8 }}>
               <Text variant="titleMedium">{label}</Text>
               <IconButton
@@ -201,7 +187,6 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               style={{ marginHorizontal: 16, marginVertical: 8, elevation: 0 }}
             />
 
-            {/* Stop List - Optimized for rendering large lists smoothly with virtualization */}
             <FlatList
               data={filtered}
               keyExtractor={item => item.id}

@@ -1,14 +1,3 @@
-/**
- * Design system for Addis Ababa Route Finder
- *
- * Color palette inspired by Ethiopian landscapes:
- *   Primary blue = trust/reliability for transit
- *   Amber accent = Ethiopian gold
- *   Transport-specific colors for bus vs taxi
- *
- * Builds a custom MD3 theme for React Native Paper v5.
- */
-
 import { Platform } from 'react-native';
 import {
   MD3LightTheme,
@@ -71,7 +60,6 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-/** Custom colors added to the Paper theme for transport-specific styling */
 export type AppCustomColors = {
   bus: string;
   busLight: string;
@@ -129,7 +117,6 @@ export function getPaperTheme(scheme: 'light' | 'dark'): AppTheme {
         level4: palette.backgroundSelected,
         level5: palette.backgroundSelected,
       },
-      // Custom app colors
       bus: palette.bus,
       busLight: palette.busLight,
       taxi: palette.taxi,
