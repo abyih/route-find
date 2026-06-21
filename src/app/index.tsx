@@ -1,41 +1,25 @@
-/**
- * Home Screen — Route Search
- *
- * The main screen where users select origin/destination and find routes.
- * Features a gradient header, searchable stop selectors,
- * route results with visual timelines, and popular route suggestions.
- */
-
-import React, { useState, useCallback } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  StatusBar,
-} from 'react-native';
-import {
-  Text,
-  Button,
-  IconButton,
-  Card,
-  Icon,
-  ActivityIndicator,
-  Divider,
-  Surface,
-} from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback, useState } from 'react';
+import { Platform, ScrollView, StatusBar, View } from 'react-native';
+import {
+  Button,
+  Card,
+  Chip,
+  Divider,
+  Icon,
+  IconButton,
+  Text,
+} from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { StopSelector } from '@/components/StopSelector';
 import { RouteCard } from '@/components/RouteCard';
-import { findRoutes } from '@/data/routeEngine';
+import { StopSelector } from '@/components/StopSelector';
 import { getStopById } from '@/data/routeData';
-import { Stop, RouteResult, SavedRoute } from '@/data/types';
-import { useAppTheme } from '@/hooks/use-theme';
+import { findRoutes } from '@/data/routeEngine';
+import { RouteResult, SavedRoute, Stop } from '@/data/types';
 import { useSavedRoutes } from '@/hooks/use-saved-routes';
+import { useAppTheme } from '@/hooks/use-theme';
 
-// Popular routes for quick suggestions
 const POPULAR_ROUTES = [
   { from: 'mexico', to: 'megenagna', label: 'Mexico → Megenagna' },
   { from: 'bole', to: 'piassa', label: 'Bole → Piassa' },
@@ -56,14 +40,10 @@ export default function HomeScreen() {
 
   const handleSearch = useCallback(() => {
     if (!fromStop || !toStop) return;
-
     setSearching(true);
     setHasSearched(true);
-
-    // Small delay for UX feedback
     setTimeout(() => {
-      const routes = findRoutes(fromStop.id, toStop.id);
-      setResults(routes);
+      setResults(findRoutes(fromStop.id, toStop.id));
       setSearching(false);
     }, 300);
   }, [fromStop, toStop]);
@@ -94,7 +74,6 @@ export default function HomeScreen() {
     const first = route.segments[0];
     const last = route.segments[route.segments.length - 1];
     const savedId = `${first.fromStop.id}_${last.toStop.id}`;
-
     if (isRouteSaved(first.fromStop.id, last.toStop.id)) {
       removeRoute(savedId);
     } else {
@@ -111,120 +90,102 @@ export default function HomeScreen() {
   }, [isRouteSaved, saveRoute, removeRoute]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="light-content" />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         {/* Hero Header */}
         <LinearGradient
           colors={[theme.colors.gradient1, theme.colors.gradient2]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.heroGradient}
+          style={{ paddingBottom: 40 }}
         >
-          <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
-            <View style={styles.heroContent}>
-              <View style={styles.heroTitleRow}>
-                <View style={styles.heroIcon}>
-                  <Icon source="compass" size={24} color="#FFFFFF" />
-                </View>
-                <View>
-                  <Text variant="headlineSmall" style={styles.heroTitle}>Route Finder</Text>
-                  <Text variant="bodySmall" style={styles.heroSubtitle}>Addis Ababa Transit</Text>
-                </View>
+          <SafeAreaView
+            edges={['top']}
+            style={{
+              padding: 24,
+              paddingTop: Platform.select({ android: (StatusBar.currentHeight ?? 20) + 24, default: 24 }),
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <Icon source="compass" size={28} color="#FFFFFF" />
+              <View>
+                <Text variant="headlineSmall" style={{ color: '#FFFFFF' }}>Route Finder</Text>
+                <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.8)' }}>Addis Ababa Transit</Text>
               </View>
-              <Text variant="bodySmall" style={styles.heroDescription}>
-                Find the best way to get around the city using minibus taxis and buses
-              </Text>
             </View>
+            <Text variant="bodySmall" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Find the best way to get around the city using minibus taxis and buses
+            </Text>
           </SafeAreaView>
         </LinearGradient>
 
         {/* Search Section */}
-        <View style={[styles.searchSection, { backgroundColor: theme.colors.background }]}>
-          <View style={styles.searchCard}>
-            <StopSelector
-              label="From"
-              placeholder="Where are you?"
-              selectedStop={fromStop}
-              onSelect={setFromStop}
-              icon="map-marker"
-            />
+        <View style={{ padding: 16, marginTop: -24, gap: 12 }}>
+          <StopSelector
+            label="From"
+            placeholder="Where are you?"
+            selectedStop={fromStop}
+            onSelect={setFromStop}
+            icon="map-marker"
+          />
 
-            {/* Swap button */}
-            <View style={styles.swapRow}>
-              <Divider style={styles.swapLine} />
-              <IconButton
-                icon="swap-vertical"
-                size={18}
-                mode="outlined"
-                onPress={handleSwap}
-                style={styles.swapButton}
-              />
-              <Divider style={styles.swapLine} />
-            </View>
-
-            <StopSelector
-              label="To"
-              placeholder="Where to?"
-              selectedStop={toStop}
-              onSelect={setToStop}
-              icon="flag"
-            />
-
-            {/* Search Button */}
-            <Button
-              mode="contained"
-              icon="magnify"
-              onPress={handleSearch}
-              disabled={!fromStop || !toStop || searching}
-              loading={searching}
-              style={styles.searchButton}
-              contentStyle={styles.searchButtonContent}
-              labelStyle={styles.searchButtonLabel}
-            >
-              Find Routes
-            </Button>
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24 }}>
+            <Divider style={{ flex: 1 }} />
+            <IconButton icon="swap-vertical" size={18} mode="outlined" onPress={handleSwap} />
+            <Divider style={{ flex: 1 }} />
           </View>
+
+          <StopSelector
+            label="To"
+            placeholder="Where to?"
+            selectedStop={toStop}
+            onSelect={setToStop}
+            icon="flag"
+          />
+
+          <Button
+            mode="contained"
+            icon="magnify"
+            onPress={handleSearch}
+            disabled={!fromStop || !toStop || searching}
+            loading={searching}
+          >
+            Find Routes
+          </Button>
         </View>
 
         {/* Results */}
         {hasSearched && !searching && (
-          <View style={styles.resultsSection}>
+          <View style={{ padding: 16, gap: 12 }}>
             {results.length > 0 ? (
               <>
-                <Text variant="titleMedium" style={{ marginBottom: 4 }}>
+                <Text variant="titleMedium">
                   {results.length} route{results.length > 1 ? 's' : ''} found
                 </Text>
-                <View style={styles.resultsList}>
-                  {results.map((route, idx) => (
-                    <RouteCard
-                      key={route.id}
-                      route={route}
-                      index={idx}
-                      onSave={handleSaveRoute}
-                      isSaved={
-                        route.segments.length > 0 &&
-                        isRouteSaved(
-                          route.segments[0].fromStop.id,
-                          route.segments[route.segments.length - 1].toStop.id
-                        )
-                      }
-                    />
-                  ))}
-                </View>
+                {results.map((route, idx) => (
+                  <RouteCard
+                    key={route.id}
+                    route={route}
+                    index={idx}
+                    onSave={handleSaveRoute}
+                    isSaved={
+                      route.segments.length > 0 &&
+                      isRouteSaved(
+                        route.segments[0].fromStop.id,
+                        route.segments[route.segments.length - 1].toStop.id
+                      )
+                    }
+                  />
+                ))}
               </>
             ) : (
-              <Card style={styles.noResultsCard}>
-                <Card.Content style={styles.noResults}>
+              <Card>
+                <Card.Content style={{ alignItems: 'center', padding: 32, gap: 8 }}>
                   <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />
-                  <Text variant="titleSmall" style={{ marginTop: 12 }}>No routes found</Text>
-                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', lineHeight: 18 }}>
-                    We couldn't find a route between these stops. Try a different combination or check the Routes tab for all connections.
+                  <Text variant="titleSmall">No routes found</Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+                    We couldn't find a route between these stops. Try a different combination or check the Routes tab.
                   </Text>
                 </Card.Content>
               </Card>
@@ -232,154 +193,24 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Popular Routes (shown when no search has been done) */}
+        {/* Popular Routes */}
         {!hasSearched && (
-          <View style={styles.popularSection}>
-            <Text variant="titleMedium" style={{ marginBottom: 4 }}>
-              Popular Routes
-            </Text>
-            <View style={styles.popularGrid}>
-              {POPULAR_ROUTES.map((pr) => (
-                <Card
-                  key={pr.label}
-                  onPress={() => handlePopularRoute(pr.from, pr.to)}
-                  style={styles.popularCard}
-                >
-                  <Card.Content style={styles.popularCardContent}>
-                    <View style={[styles.popularIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                      <Icon source="trending-up" size={16} color={theme.colors.primary} />
-                    </View>
-                    <Text variant="bodyMedium" numberOfLines={1} style={{ flex: 1 }}>
-                      {pr.label}
-                    </Text>
-                    <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
-                  </Card.Content>
-                </Card>
-              ))}
-            </View>
+          <View style={{ padding: 16, gap: 12 }}>
+            <Text variant="titleMedium">Popular Routes</Text>
+            {POPULAR_ROUTES.map((pr) => (
+              <Card key={pr.label} onPress={() => handlePopularRoute(pr.from, pr.to)}>
+                <Card.Title
+                  title={pr.label}
+                  left={(props) => <Icon {...props} source="trending-up" />}
+                  right={(props) => <Icon {...props} source="chevron-right" />}
+                />
+              </Card>
+            ))}
           </View>
         )}
 
-        {/* Bottom padding */}
         <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  heroGradient: {
-    paddingBottom: 40,
-  },
-  heroSafeArea: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.select({ android: StatusBar.currentHeight ?? 20, default: 0 }),
-  },
-  heroContent: {
-    paddingTop: 24,
-    gap: 12,
-  },
-  heroTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  heroIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroTitle: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-  },
-  heroSubtitle: {
-    color: 'rgba(255,255,255,0.8)',
-  },
-  heroDescription: {
-    color: 'rgba(255,255,255,0.7)',
-    lineHeight: 20,
-  },
-  searchSection: {
-    marginTop: -24,
-    paddingHorizontal: 16,
-  },
-  searchCard: {
-    gap: 0,
-  },
-  swapRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: -4,
-    zIndex: 1,
-    paddingHorizontal: 24,
-  },
-  swapLine: {
-    flex: 1,
-  },
-  swapButton: {
-    marginHorizontal: 8,
-  },
-  searchButton: {
-    marginTop: 16,
-    borderRadius: 16,
-  },
-  searchButtonContent: {
-    paddingVertical: 6,
-  },
-  searchButtonLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  resultsSection: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    gap: 16,
-  },
-  resultsList: {
-    gap: 12,
-  },
-  noResultsCard: {
-    overflow: 'hidden',
-  },
-  noResults: {
-    alignItems: 'center',
-    padding: 32,
-    gap: 8,
-  },
-  popularSection: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    gap: 16,
-  },
-  popularGrid: {
-    gap: 8,
-  },
-  popularCard: {
-    overflow: 'hidden',
-  },
-  popularCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  popularIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

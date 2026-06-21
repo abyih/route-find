@@ -12,7 +12,6 @@ import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   FlatList,
-  StyleSheet,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -22,7 +21,6 @@ import {
   Searchbar,
   Text,
   TouchableRipple,
-  Surface,
   Chip,
   Icon,
   IconButton,
@@ -68,26 +66,14 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
     return 'swap-horizontal';
   };
 
-  const getStopColor = (type: string) => {
-    if (type === 'bus') return theme.colors.bus;
-    if (type === 'taxi') return theme.colors.taxi;
-    return theme.colors.primary;
-  };
-
-  const getStopBg = (type: string) => {
-    if (type === 'bus') return theme.colors.busLight;
-    if (type === 'taxi') return theme.colors.taxiLight;
-    return theme.colors.primaryLight;
-  };
-
   const renderStop = useCallback(({ item }: { item: Stop }) => (
-    <TouchableRipple onPress={() => handleSelect(item)} style={styles.stopItem}>
-      <View style={styles.stopItemInner}>
-        <View style={styles.stopItemLeft}>
-          <View style={[styles.stopTypeBadge, { backgroundColor: getStopBg(item.type) }]}>
-            <Icon source={getStopIcon(item.type)} size={16} color={getStopColor(item.type)} />
+    <TouchableRipple onPress={() => handleSelect(item)} style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+          <View style={{ width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryContainer }}>
+            <Icon source={getStopIcon(item.type)} size={16} color={theme.colors.primary} />
           </View>
-          <View style={styles.stopItemText}>
+          <View style={{ flex: 1, gap: 2 }}>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
               {item.name}
             </Text>
@@ -99,12 +85,7 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
           </View>
         </View>
         {item.isPassingBy && (
-          <Chip
-            compact
-            mode="flat"
-            textStyle={{ fontSize: 10, color: theme.colors.accent }}
-            style={{ backgroundColor: theme.colors.accentLight }}
-          >
+          <Chip compact mode="outlined">
             Flag down
           </Chip>
         )}
@@ -116,14 +97,20 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
     <>
       <TouchableRipple
         onPress={() => setVisible(true)}
-        style={[styles.selector, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}
+        style={{
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: theme.colors.outline,
+          backgroundColor: theme.colors.surface,
+          overflow: 'hidden',
+        }}
         borderless
       >
-        <View style={styles.selectorInner}>
-          <View style={[styles.iconContainer, { backgroundColor: theme.colors.primaryContainer }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+          <View style={{ width: 36, height: 36, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.colors.primaryContainer }}>
             <Icon source={icon} size={18} color={theme.colors.primary} />
           </View>
-          <View style={styles.selectorTextContainer}>
+          <View style={{ flex: 1, gap: 2 }}>
             <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: 0.5 }}>
               {label}
             </Text>
@@ -143,14 +130,24 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
         <Modal
           visible={visible}
           onDismiss={() => { setVisible(false); setSearch(''); }}
-          contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+          contentContainerStyle={{
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            maxHeight: '85%',
+            minHeight: '60%',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: theme.colors.surface,
+          }}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.modalInner}
+            style={{ flex: 1 }}
           >
             {/* Header */}
-            <View style={styles.modalHeader}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 8 }}>
               <Text variant="titleMedium">{label}</Text>
               <IconButton
                 icon="close-circle"
@@ -166,7 +163,7 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               placeholder="Search stops..."
               value={search}
               onChangeText={setSearch}
-              style={[styles.searchbar, { backgroundColor: theme.colors.surfaceVariant }]}
+              style={{ marginHorizontal: 16, marginVertical: 8, elevation: 0 }}
               autoFocus
             />
 
@@ -175,11 +172,11 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
               data={filtered}
               keyExtractor={item => item.id}
               renderItem={renderStop}
-              style={styles.stopList}
+              style={{ flex: 1 }}
               keyboardShouldPersistTaps="handled"
               ItemSeparatorComponent={Divider}
               ListEmptyComponent={
-                <View style={styles.emptyContainer}>
+                <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
                   <Icon source="alert-circle-outline" size={48} color={theme.colors.onSurfaceVariant} />
                   <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12 }}>
                     No stops found for "{search}"
@@ -193,88 +190,3 @@ export function StopSelector({ label, placeholder, selectedStop, onSelect, icon 
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  selector: {
-    borderRadius: 16,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  selectorInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectorTextContainer: {
-    flex: 1,
-    gap: 2,
-  },
-  modalContent: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '85%',
-    minHeight: '60%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  modalInner: {
-    flex: 1,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-  },
-  searchbar: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    elevation: 0,
-  },
-  stopList: {
-    flex: 1,
-  },
-  stopItem: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  stopItemInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  stopItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  stopTypeBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stopItemText: {
-    flex: 1,
-    gap: 2,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
-});

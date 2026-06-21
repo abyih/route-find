@@ -5,22 +5,16 @@
  * all departing routes with destinations and transport type.
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
+import { ScrollView, StatusBar, View } from 'react-native';
 import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  StatusBar,
-} from 'react-native';
-import {
-  Text,
-  Searchbar,
+  Card,
   Chip,
-  List,
-  Icon,
   Divider,
-  Surface,
+  Icon,
+  List,
+  Searchbar,
+  Text,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -86,24 +80,12 @@ export default function RoutesScreen() {
     return 'swap-horizontal';
   };
 
-  const getHubColor = (type: string) => {
-    if (type === 'bus') return theme.colors.bus;
-    if (type === 'taxi') return theme.colors.taxi;
-    return theme.colors.primary;
-  };
-
-  const getHubBg = (type: string) => {
-    if (type === 'bus') return theme.colors.busLight;
-    if (type === 'taxi') return theme.colors.taxiLight;
-    return theme.colors.primaryLight;
-  };
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, gap: 12 }}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={{ paddingTop: 16, gap: 4 }}>
           <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Routes</Text>
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
             Browse all transit connections
@@ -115,34 +97,18 @@ export default function RoutesScreen() {
           placeholder="Search hubs or destinations..."
           value={search}
           onChangeText={setSearch}
-          style={[styles.searchBar, { backgroundColor: theme.colors.surfaceVariant }]}
           elevation={0}
         />
 
         {/* Stats */}
-        <View style={styles.statsRow}>
-          <Chip
-            compact
-            mode="flat"
-            icon="map-marker"
-            style={{ backgroundColor: theme.colors.primaryContainer }}
-          >
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+          <Chip compact mode="flat" icon="map-marker">
             {STOPS.length} stops
           </Chip>
-          <Chip
-            compact
-            mode="flat"
-            icon="source-branch"
-            style={{ backgroundColor: theme.colors.secondaryContainer }}
-          >
+          <Chip compact mode="flat" icon="source-branch">
             {CONNECTIONS.length} routes
           </Chip>
-          <Chip
-            compact
-            mode="flat"
-            icon="bus"
-            style={{ backgroundColor: theme.colors.tertiaryContainer }}
-          >
+          <Chip compact mode="flat" icon="bus">
             {filteredHubs.length} hubs
           </Chip>
         </View>
@@ -150,143 +116,76 @@ export default function RoutesScreen() {
 
       {/* Hub List */}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, gap: 12 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {filteredHubs.map(hub => (
-          <Surface key={hub.stopId} style={styles.hubCard} elevation={1}>
-            <List.Accordion
-              title={hub.stopName}
-              description={`${hub.connections.length} destination${hub.connections.length !== 1 ? 's' : ''}`}
-              expanded={expandedHub === hub.stopId}
-              onPress={() => setExpandedHub(prev => prev === hub.stopId ? null : hub.stopId)}
-              left={props => (
-                <View style={[styles.hubIcon, { backgroundColor: getHubBg(hub.stopType) }]}>
-                  <Icon source={getHubIcon(hub.stopType)} size={18} color={getHubColor(hub.stopType)} />
-                </View>
-              )}
-              style={{ paddingLeft: 0 }}
-              titleStyle={{ fontWeight: '700' }}
-            >
-              {hub.connections.map((conn, idx) => {
-                const dest = getStopById(conn.toStopId);
-                if (!dest) return null;
-                return (
-                  <React.Fragment key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
-                    {idx > 0 && <Divider style={{ marginLeft: 56 }} />}
-                    <List.Item
-                      title={dest.name}
-                      titleStyle={{ fontSize: 13 }}
-                      left={() => (
-                        <View style={styles.connectionIconContainer}>
-                          <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
-                        </View>
-                      )}
-                      right={() => (
-                        <View style={styles.connectionRight}>
-                          <Chip
-                            compact
-                            mode="flat"
-                            textStyle={{ fontSize: 10 }}
-                            style={{
-                              backgroundColor: conn.transportType === 'bus' ? theme.colors.busLight : theme.colors.taxiLight,
-                            }}
-                          >
-                            {conn.transportType === 'bus' ? '🚌' : '🚕'}
-                          </Chip>
-                          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                            ~{conn.estimatedTime}m
-                          </Text>
-                          {conn.isPassingBy && (
-                            <Chip
-                              compact
-                              mode="flat"
-                              textStyle={{ fontSize: 10, color: theme.colors.accent }}
-                              style={{ backgroundColor: theme.colors.accentLight }}
-                            >
-                              🤚
+        <List.Section>
+          {filteredHubs.map(hub => (
+            <Card key={hub.stopId} style={{ marginBottom: 12 }} mode="outlined">
+              <List.Accordion
+                title={hub.stopName}
+                description={`${hub.connections.length} destination${hub.connections.length !== 1 ? 's' : ''}`}
+                expanded={expandedHub === hub.stopId}
+                onPress={() => setExpandedHub(prev => prev === hub.stopId ? null : hub.stopId)}
+                left={props => (
+                  <View style={{ marginLeft: 8, justifyContent: 'center' }}>
+                    <Icon source={getHubIcon(hub.stopType)} size={24} color={theme.colors.primary} />
+                  </View>
+                )}
+                titleStyle={{ fontWeight: '700' }}
+              >
+                {hub.connections.map((conn, idx) => {
+                  const dest = getStopById(conn.toStopId);
+                  if (!dest) return null;
+                  return (
+                    <React.Fragment key={`${conn.fromStopId}-${conn.toStopId}-${idx}`}>
+                      {idx > 0 && <Divider />}
+                      <List.Item
+                        title={dest.name}
+                        titleStyle={{ fontSize: 14 }}
+                        left={() => (
+                          <View style={{ justifyContent: 'center', marginLeft: 16 }}>
+                            <Icon source="arrow-right" size={16} color={theme.colors.onSurfaceVariant} />
+                          </View>
+                        )}
+                        right={() => (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <Chip compact mode="outlined">
+                              {conn.transportType === 'bus' ? '🚌 Bus' : '🚕 Taxi'}
                             </Chip>
-                          )}
-                        </View>
-                      )}
-                      style={styles.connectionItem}
-                    />
-                  </React.Fragment>
-                );
-              })}
-            </List.Accordion>
-          </Surface>
-        ))}
+                            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                              ~{conn.estimatedTime}m
+                            </Text>
+                            {conn.isPassingBy && (
+                              <Chip compact mode="flat">
+                                🤚 Flag down
+                              </Chip>
+                            )}
+                          </View>
+                        )}
+                        style={{ paddingVertical: 8 }}
+                      />
+                    </React.Fragment>
+                  );
+                })}
+              </List.Accordion>
+            </Card>
+          ))}
+        </List.Section>
 
         {filteredHubs.length === 0 && (
-          <View style={styles.emptyState}>
+          <View style={{ alignItems: 'center', paddingVertical: 48, gap: 12 }}>
             <Icon source="magnify" size={48} color={theme.colors.onSurfaceVariant} />
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12 }}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
               No hubs match "{search}"
             </Text>
           </View>
         )}
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  header: {
-    paddingTop: 16,
-    gap: 4,
-  },
-  searchBar: {
-    elevation: 0,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    gap: 10,
-  },
-  hubCard: {
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  hubIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 16,
-  },
-  connectionIconContainer: {
-    justifyContent: 'center',
-    marginLeft: 16,
-  },
-  connectionRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  connectionItem: {
-    paddingVertical: 4,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 48,
-  },
-});

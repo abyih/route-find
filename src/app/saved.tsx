@@ -6,21 +6,15 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { ScrollView, Platform, StatusBar, View } from 'react-native';
 import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  StatusBar,
-} from 'react-native';
-import {
-  Text,
-  Card,
-  IconButton,
   Button,
-  Icon,
+  Card,
   Dialog,
+  Icon,
+  IconButton,
   Portal,
+  Text,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -67,11 +61,11 @@ export default function SavedScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16 }}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={{ paddingTop: 16, gap: 4, paddingBottom: 16 }}>
           <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Saved</Text>
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
             Your bookmarked routes
@@ -80,21 +74,19 @@ export default function SavedScreen() {
       </SafeAreaView>
 
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, gap: 12 }}
         showsVerticalScrollIndicator={false}
       >
         {!isLoaded ? (
-          <View style={styles.loadingState}>
+          <View style={{ alignItems: 'center', paddingVertical: 48 }}>
             <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
               Loading...
             </Text>
           </View>
         ) : savedRoutes.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={[styles.emptyIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Icon source="bookmark-outline" size={48} color={theme.colors.primary} />
-            </View>
+          <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 24, gap: 16 }}>
+            <Icon source="bookmark-outline" size={48} color={theme.colors.onSurfaceVariant} />
             <Text variant="titleMedium" style={{ fontWeight: '700' }}>No saved routes yet</Text>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', lineHeight: 20 }}>
               When you find a route on the Home tab, tap the bookmark icon to save it here for quick access.
@@ -103,7 +95,6 @@ export default function SavedScreen() {
               mode="contained"
               icon="magnify"
               onPress={() => router.navigate('/')}
-              style={{ marginTop: 8, borderRadius: 20 }}
             >
               Find a Route
             </Button>
@@ -114,35 +105,33 @@ export default function SavedScreen() {
               {savedRoutes.length} saved route{savedRoutes.length !== 1 ? 's' : ''}
             </Text>
             {savedRoutes.map(route => (
-              <Card key={route.id} style={styles.savedCard}>
-                <Card.Content style={styles.savedCardContent}>
-                  <View style={[styles.savedIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-                    <Icon source="compass" size={20} color={theme.colors.primary} />
-                  </View>
-                  <View style={styles.savedInfo}>
-                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
-                      {route.fromStopName}
-                    </Text>
-                    <View style={styles.arrowRow}>
-                      <Icon source="arrow-down" size={14} color={theme.colors.onSurfaceVariant} />
+              <Card key={route.id} mode="outlined">
+                <Card.Content style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                  <Icon source="compass" size={24} color={theme.colors.primary} />
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+                        {route.fromStopName}
+                      </Text>
+                      <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
+                      <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+                        {route.toStopName}
+                      </Text>
                     </View>
-                    <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
-                      {route.toStopName}
-                    </Text>
-                    <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
+                    <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
                       Saved {formatDate(route.savedAt)}
                     </Text>
                   </View>
-                  <View style={styles.savedActions}>
+                  <View style={{ flexDirection: 'row', gap: 4 }}>
                     <IconButton
                       icon="magnify"
-                      size={16}
+                      size={20}
                       mode="contained-tonal"
                       onPress={() => handleSearch(route)}
                     />
                     <IconButton
                       icon="trash-can-outline"
-                      size={16}
+                      size={20}
                       iconColor={theme.colors.error}
                       onPress={() => handleDelete(route)}
                     />
@@ -153,7 +142,7 @@ export default function SavedScreen() {
           </>
         )}
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* Delete Confirmation Dialog */}
@@ -174,68 +163,3 @@ export default function SavedScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    paddingHorizontal: 16,
-  },
-  header: {
-    paddingTop: 16,
-    gap: 4,
-    paddingBottom: 16,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 16,
-    gap: 10,
-  },
-  savedCard: {
-    overflow: 'hidden',
-  },
-  savedCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  savedIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  savedInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  arrowRow: {
-    paddingLeft: 2,
-    paddingVertical: 2,
-  },
-  savedActions: {
-    gap: 4,
-  },
-  loadingState: {
-    alignItems: 'center',
-    paddingVertical: 48,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-    gap: 16,
-  },
-  emptyIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-});
