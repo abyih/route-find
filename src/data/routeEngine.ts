@@ -1,18 +1,6 @@
-/**
- * Route Finding Engine
- *
- * Uses BFS (Breadth-First Search) to find all possible routes
- * between two stops, including multi-transfer routes.
- *
- * Routes are ranked by:
- *   1. Fewest transfers
- *   2. Shortest estimated time
- */
-
 import { CONNECTIONS, getStopById } from './routeData';
 import { RouteConnection, RouteResult, RouteSegment } from './types';
 
-// Build adjacency list for the graph
 interface AdjacencyEntry {
   connection: RouteConnection;
 }

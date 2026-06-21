@@ -35,6 +35,9 @@ export default function AppTabs() {
           <TabTrigger name="saved" href="/saved" asChild>
             <TabButton icon="bookmark">Saved</TabButton>
           </TabTrigger>
+          <TabTrigger name="about" href={"/about" as any} asChild>
+            <TabButton icon="information-outline">About</TabButton>
+          </TabTrigger>
         </CustomTabList>
       </TabList>
     </Tabs>

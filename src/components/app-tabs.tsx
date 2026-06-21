@@ -62,6 +62,15 @@ export default function AppTabs() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: 'About',
+          tabBarIcon: ({ color, size }) => (
+            <Icon source="information-outline" size={size} color={color as string} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
