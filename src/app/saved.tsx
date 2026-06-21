@@ -44,9 +44,6 @@ export default function SavedScreen() {
     }
   }, [deleteTarget, removeRoute]);
 
-  const handleSearch = useCallback((route: SavedRoute) => {
-    router.navigate('/');
-  }, [router]);
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -65,11 +62,21 @@ export default function SavedScreen() {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16 }}>
         {/* Header */}
-        <View style={{ paddingTop: 16, gap: 4, paddingBottom: 16 }}>
-          <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Saved</Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-            Your bookmarked routes
-          </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, paddingBottom: 16 }}>
+          <View style={{ gap: 4 }}>
+            <Text variant="headlineSmall" style={{ fontWeight: '800' }}>Saved</Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              Your bookmarked routes
+            </Text>
+          </View>
+          <Button
+            mode="contained-tonal"
+            icon="magnify"
+            onPress={() => router.navigate('/')}
+            compact
+          >
+            Search
+          </Button>
         </View>
       </SafeAreaView>
 
@@ -109,12 +116,12 @@ export default function SavedScreen() {
                 <Card.Content style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
                   <Icon source="compass" size={24} color={theme.colors.primary} />
                   <View style={{ flex: 1, gap: 4 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                      <Text variant="bodyMedium" style={{ fontWeight: '600', flexShrink: 1 }}>
                         {route.fromStopName}
                       </Text>
                       <Icon source="arrow-right" size={14} color={theme.colors.onSurfaceVariant} />
-                      <Text variant="bodyMedium" style={{ fontWeight: '600' }}>
+                      <Text variant="bodyMedium" style={{ fontWeight: '600', flexShrink: 1 }}>
                         {route.toStopName}
                       </Text>
                     </View>
@@ -123,12 +130,6 @@ export default function SavedScreen() {
                     </Text>
                   </View>
                   <View style={{ flexDirection: 'row', gap: 4 }}>
-                    <IconButton
-                      icon="magnify"
-                      size={20}
-                      mode="contained-tonal"
-                      onPress={() => handleSearch(route)}
-                    />
                     <IconButton
                       icon="trash-can-outline"
                       size={20}
